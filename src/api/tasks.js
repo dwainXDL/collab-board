@@ -1,25 +1,20 @@
-import mockTasks from "../data/mockTasks";
+import { mockTasks } from "../data/mockTasks";
 
-let tasks = [...mockTasks];
-
-const delay = (data) => new Promise((resolve) => setTimeout(() => resolve(data), 500));
+const delay = (data, ms = 400) =>
+  new Promise((resolve) => setTimeout(() => resolve(data), ms));
 
 export function getTasks() {
-  return delay([...tasks]);
+  return delay([...mockTasks]);
 }
 
 export function createTask(data) {
-  const newTask = { id: Date.now(), ...data };
-  tasks.push(newTask);
-  return delay(newTask);
+  return delay({ id: crypto.randomUUID(), ...data });
 }
 
 export function updateTaskStatus(id, status) {
-  tasks = tasks.map((t) => (t.id === id ? { ...t, status } : t));
-  return delay(tasks.find((t) => t.id === id));
+  return delay({ id, status });
 }
 
 export function deleteTask(id) {
-  tasks = tasks.filter((t) => t.id !== id);
-  return delay({ success: true });
+  return delay({ success: true, id });
 }
