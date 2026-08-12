@@ -1,18 +1,29 @@
-import { mockTasks } from "../data/mockTasks";
+import { useTasks } from "../hooks/useTasks";
 import Column from "./Column";
 
-function Board() {
-  const todoTasks = mockTasks.filter((task) => task.status === "todo");
-  const doingTasks = mockTasks.filter((task) => task.status === "doing");
-  const doneTasks = mockTasks.filter((task) => task.status === "done");
+const COLUMNS = [
+  { key: "todo", label: "To Do" },
+  { key: "doing", label: "Doing" },
+  { key: "done", label: "Done" },
+];
+
+export default function Board() {
+  const { tasks, dispatch } = useTasks();
+
+  const handleMove = (id, status) => dispatch({ type: "moved", id, status });
+  const handleDelete = (id) => dispatch({ type: "deleted", id });
 
   return (
     <div style={{ display: "flex", gap: "24px", padding: "16px" }}>
-      <Column title="To Do" tasks={todoTasks} />
-      <Column title="Doing" tasks={doingTasks} />
-      <Column title="Done" tasks={doneTasks} />
+      {COLUMNS.map((col) => (
+        <Column
+          key={col.key}
+          title={col.label}
+          tasks={tasks.filter((t) => t.status === col.key)}
+          onMove={handleMove}
+          onDelete={handleDelete}
+        />
+      ))}
     </div>
   );
 }
-
-export default Board;
