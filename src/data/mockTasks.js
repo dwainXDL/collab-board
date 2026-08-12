@@ -1,1 +1,65 @@
-export const mockTasks = [];
+export const mockTasks = [
+  {
+    id: crypto.randomUUID(),
+    title: "Setup project",
+    assignee: "Yameesha",
+    status: "todo",
+    dueDate: "2026-08-10",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Design wireframe",
+    assignee: "Thiranya",
+    status: "doing",
+    dueDate: "2026-08-08",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Create Board UI",
+    assignee: "Heshala",
+    status: "todo",
+    dueDate: "2026-08-12",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Build TaskCard",
+    assignee: "Thamindu",
+    status: "todo",
+    dueDate: "2026-08-11",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Add task form",
+    assignee: "Isira",
+    status: "todo",
+    dueDate: "2026-08-13",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Filter bar",
+    assignee: "Ashen",
+    status: "todo",
+    dueDate: "2026-08-14",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Detail page",
+    assignee: "Dwain",
+    status: "doing",
+    dueDate: "2026-08-15",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Write README",
+    assignee: "Dwain",
+    status: "todo",
+    dueDate: "2026-08-16",
+  },
+  {
+    id: crypto.randomUUID(),
+    title: "Setup CI",
+    assignee: "Yameesha",
+    status: "todo",
+    dueDate: "2026-08-17",
+  },
+];
