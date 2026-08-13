@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
@@ -12,11 +12,21 @@ const COLUMNS = [
 
 export default function Board() {
   const { tasks, dispatch } = useTasks();
-  const [filters, setFilters] = useState({
-    status: "all",
-    assignee: "all",
-    search: "",
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters = {
+    status: searchParams.get("status") || "all",
+    assignee: searchParams.get("assignee") || "all",
+    search: searchParams.get("search") || "",
+  };
+
+  const setFilters = (next) => {
+    const params = {};
+    if (next.status !== "all") params.status = next.status;
+    if (next.assignee !== "all") params.assignee = next.assignee;
+    if (next.search !== "") params.search = next.search;
+    setSearchParams(params);
+  };
 
   const handleMove = (id, status) => dispatch({ type: "moved", id, status });
   const handleDelete = (id) => dispatch({ type: "deleted", id });
@@ -26,7 +36,11 @@ export default function Board() {
 
   return (
     <div style={{ padding: "16px" }}>
-      <FilterBar onFilterChange={setFilters} teamMembers={teamMembers} />
+      <FilterBar
+        filters={filters}
+        onFilterChange={setFilters}
+        teamMembers={teamMembers}
+      />
 
       {filteredTasks.length === 0 ? (
         <p style={{ marginTop: "24px", color: "#666" }}>
