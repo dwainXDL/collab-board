@@ -12,6 +12,7 @@ export default function NewTaskPage() {
   const [dueDate, setDueDate] = useState("");
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
 
   function validate() {
     const next = {};
@@ -20,7 +21,7 @@ export default function NewTaskPage() {
     }
     if (!dueDate) {
       next.dueDate = "Due date is required.";
-    } else if (dueDate < new Date().toISOString().slice(0, 10)) {
+    } else if (dueDate < today) {
       next.dueDate = "Due date can't be in the past.";
     }
     return next;
@@ -71,6 +72,7 @@ export default function NewTaskPage() {
           <input
             id="dueDate"
             type="date"
+            min={today}
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
