@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Button from "./Button";
 
 const STATUS_ORDER = ["todo", "doing", "done"];
 
@@ -23,24 +23,24 @@ export default function TaskCard({
 
   return (
     <article className="task-card">
-      <h3><Link to={`/tasks/${id}`}>{title}</Link></h3>
+      <h3>{title}</h3>
       <p>
         {assignee} · Due {dueDate}
       </p>
       <div className="task-card-actions">
         {canMoveLeft && (
-          <button onClick={() => onMove(id, STATUS_ORDER[idx - 1])}>
+          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx - 1])}>
             ← Move
-          </button>
+          </Button>
         )}
         {canMoveRight && (
-          <button onClick={() => onMove(id, STATUS_ORDER[idx + 1])}>
+          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx + 1])}>
             Move →
-          </button>
+          </Button>
         )}
-        <button className="delete-btn" onClick={handleDelete}>
+        <Button variant="danger" onClick={handleDelete}>
           Delete
-        </button>
+        </Button>
       </div>
     </article>
   );
