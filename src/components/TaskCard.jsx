@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const STATUS_ORDER = ["todo", "doing", "done"];
 
 export default function TaskCard({
@@ -21,7 +23,7 @@ export default function TaskCard({
 
   return (
     <article className="task-card">
-      <h3>{title}</h3>
+      <h3><Link to={`/tasks/${id}`}>{title}</Link></h3>
       <p>
         {assignee} · Due {dueDate}
       </p>

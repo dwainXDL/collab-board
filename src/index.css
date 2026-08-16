@@ -109,3 +109,13 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.task-detail {
+  padding: 16px;
+}
+
+.task-detail h1 {
+  font-size: 24px;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+}
