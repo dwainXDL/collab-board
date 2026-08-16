@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useState } from "react";
+import { useReducer, useEffect, useState, useCallback } from "react";
 import { TasksContext } from "./TasksContext";
 import { getTasks } from "../api/tasks";
 
@@ -24,9 +24,7 @@ export function TasksProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  function loadTasks() {
-    setLoading(true);
-    setError(null);
+  const loadTasks = useCallback(() => {
     getTasks()
       .then((data) => {
         dispatch({ type: "loaded", tasks: data });
@@ -36,14 +34,20 @@ export function TasksProvider({ children }) {
         setError(err.message || "Failed to load tasks");
         setLoading(false);
       });
-  }
+  }, []);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
+
+  function retry() {
+    setLoading(true);
+    setError(null);
+    loadTasks();
+  }
 
   return (
-    <TasksContext.Provider value={{ tasks, dispatch, loading, error, retry: loadTasks }}>
+    <TasksContext.Provider value={{ tasks, dispatch, loading, error, retry }}>
       {children}
     </TasksContext.Provider>
   );
