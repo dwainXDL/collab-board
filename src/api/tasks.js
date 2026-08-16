@@ -18,8 +18,3 @@ export function updateTaskStatus(id, status) {
 export function deleteTask(id) {
   return delay({ success: true, id });
 }
-
-export function getTaskById(id) {
-  const task = mockTasks.find((t) => t.id === id);
-  return delay(task || null);
-}
