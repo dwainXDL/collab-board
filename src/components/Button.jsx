@@ -1,16 +1,19 @@
 export default function Button({
   children,
   variant = "primary",
+  className,
   onClick,
   type = "button",
   ...rest
 }) {
+  const classes = `btn btn-${variant}${className ? ` ${className}` : ""}`;
+
   return (
     <button
-      className={`btn btn-${variant}`}
-      onClick={onClick}
       type={type}
+      onClick={onClick}
       {...rest}
+      className={classes}
     >
       {children}
     </button>
