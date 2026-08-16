@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTask } from "../api/tasks";
 import { useTasks } from "../hooks/useTasks";
+import Button from "../components/Button";
 
 export default function NewTaskPage() {
   const { dispatch } = useTasks();
@@ -79,9 +80,9 @@ export default function NewTaskPage() {
           {errors.dueDate && <p role="alert">{errors.dueDate}</p>}
         </div>
 
-        <button type="submit" disabled={submitting}>
+        <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? "Adding..." : "Add task"}
-        </button>
+        </Button>
       </form>
     </div>
   );
