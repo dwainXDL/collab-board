@@ -1,48 +1,48 @@
-import { Link } from "react-router-dom";
-import Button from "./Button";
+import React from 'react';
+import Button from './Button';
 
-const STATUS_ORDER = ["todo", "doing", "done"];
-
-export default function TaskCard({
-  id,
-  title,
-  assignee,
-  dueDate,
-  status,
-  onMove,
-  onDelete,
-}) {
-  const idx = STATUS_ORDER.indexOf(status);
-  const canMoveLeft = idx > 0;
-  const canMoveRight = idx < STATUS_ORDER.length - 1;
-
-  function handleDelete() {
-    if (window.confirm(`Delete "${title}"?`)) {
-      onDelete(id);
-    }
-  }
-
+export default function TaskCard({ id, title, assignee, dueDate, status, onMove, onDelete }) {
   return (
-    <article className="task-card">
-      <h3><Link to={`/tasks/${id}`}>{title}</Link></h3>
-      <p>
-        {assignee} · Due {dueDate}
-      </p>
-      <div className="task-card-actions">
-        {canMoveLeft && (
-          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx - 1])}>
-            ← Move
-          </Button>
-        )}
-        {canMoveRight && (
-          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx + 1])}>
-            Move →
-          </Button>
-        )}
-        <Button variant="danger" onClick={handleDelete}>
+    <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-4 hover:border-slate-700 transition-all shadow-sm group flex flex-col justify-between gap-3">
+      <div>
+        <h4 className="font-medium text-slate-100 text-sm mb-2">{title}</h4>
+        
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <span className="bg-slate-900 border border-slate-800 rounded-md px-2 py-0.5">
+            👤 {assignee || 'Unassigned'}
+          </span>
+          {dueDate && (
+            <span className="bg-slate-900 border border-slate-800 rounded-md px-2 py-0.5">
+              📅 {dueDate}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-slate-800/50 mt-1">
+        <div className="flex items-center gap-1.5">
+          {status !== 'todo' && (
+            <Button
+              variant="secondary"
+              onClick={() => onMove(id, status === 'done' ? 'in_progress' : 'todo')}
+            >
+              ← Back
+            </Button>
+          )}
+          {status !== 'done' && (
+            <Button
+              variant="primary"
+              onClick={() => onMove(id, status === 'todo' ? 'in_progress' : 'done')}
+            >
+              Next →
+            </Button>
+          )}
+        </div>
+
+        <Button variant="danger" onClick={() => onDelete(id)}>
           Delete
         </Button>
       </div>
-    </article>
+    </div>
   );
 }
