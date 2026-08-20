@@ -1,6 +1,8 @@
-import React from 'react';
-
-export default function FilterBar({ filters = { search: '', status: '', assignee: '' }, onFilterChange }) {
+export default function FilterBar({
+  filters,
+  onFilterChange,
+  teamMembers = [],
+}) {
   const update = (key, value) => {
     onFilterChange({ ...filters, [key]: value });
   };
@@ -12,7 +14,7 @@ export default function FilterBar({ filters = { search: '', status: '', assignee
           type="text"
           placeholder="Search tasks..."
           value={filters.search}
-          onChange={(e) => update('search', e.target.value)}
+          onChange={(e) => update("search", e.target.value)}
           className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
         />
       </div>
@@ -20,22 +22,26 @@ export default function FilterBar({ filters = { search: '', status: '', assignee
       <div className="flex flex-wrap items-center gap-3">
         <select
           value={filters.status}
-          onChange={(e) => update('status', e.target.value)}
-          className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+          onChange={(e) => update("status", e.target.value)}
+          className="filter-select bg-slate-950 border border-slate-800 rounded-xl pl-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
         >
-          <option value="">All Statuses</option>
+          <option value="all">All Statuses</option>
           <option value="todo">To Do</option>
-          <option value="in_progress">In Progress</option>
+          <option value="doing">Doing</option>
           <option value="done">Done</option>
         </select>
 
         <select
           value={filters.assignee}
-          onChange={(e) => update('assignee', e.target.value)}
-          className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
+          onChange={(e) => update("assignee", e.target.value)}
+          className="filter-select bg-slate-950 border border-slate-800 rounded-xl pl-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 transition-colors"
         >
-          <option value="">All Assignees</option>
-          <option value="Unassigned">Unassigned</option>
+          <option value="all">All Assignees</option>
+          {teamMembers.map((member) => (
+            <option key={member} value={member}>
+              {member}
+            </option>
+          ))}
         </select>
       </div>
     </div>
