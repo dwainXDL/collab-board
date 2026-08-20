@@ -51,7 +51,7 @@ export default function TaskDetailPage() {
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-sm font-medium">Status</span>
             <span className="text-slate-200 font-medium bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/80 uppercase text-xs tracking-wider">
-              {task.status.replace("_", " ")}
+              {task.status.replace}
             </span>
           </div>
 
