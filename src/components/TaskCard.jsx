@@ -23,26 +23,50 @@ export default function TaskCard({
   }
 
   return (
-    <article className="task-card">
-      <h3><Link to={`/tasks/${id}`}>{title}</Link></h3>
-      <p>
-        {assignee} · Due {dueDate}
-      </p>
-      <div className="task-card-actions">
-        {canMoveLeft && (
-          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx - 1])}>
-            ← Move
-          </Button>
-        )}
-        {canMoveRight && (
-          <Button variant="secondary" onClick={() => onMove(id, STATUS_ORDER[idx + 1])}>
-            Move →
-          </Button>
-        )}
+    <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-4 hover:border-slate-700 transition-all shadow-sm flex flex-col justify-between gap-3">
+      <div>
+        <h4 className="font-medium text-slate-100 text-sm mb-2">
+          <Link to={`/tasks/${id}`} className="hover:text-indigo-400">
+            {title}
+          </Link>
+        </h4>
+
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          <span className="bg-slate-900 border border-slate-800 rounded-md px-2 py-0.5">
+            👤 {assignee || "Unassigned"}
+          </span>
+          {dueDate && (
+            <span className="bg-slate-900 border border-slate-800 rounded-md px-2 py-0.5">
+              📅 {dueDate}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-slate-800/50 mt-1">
+        <div className="flex items-center gap-1.5">
+          {canMoveLeft && (
+            <Button
+              variant="secondary"
+              onClick={() => onMove(id, STATUS_ORDER[idx - 1])}
+            >
+              ← Back
+            </Button>
+          )}
+          {canMoveRight && (
+            <Button
+              variant="primary"
+              onClick={() => onMove(id, STATUS_ORDER[idx + 1])}
+            >
+              Next →
+            </Button>
+          )}
+        </div>
+
         <Button variant="danger" onClick={handleDelete}>
           Delete
         </Button>
       </div>
-    </article>
+    </div>
   );
 }

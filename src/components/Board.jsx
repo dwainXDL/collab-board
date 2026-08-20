@@ -35,7 +35,16 @@ export default function Board() {
   const teamMembers = [...new Set(tasks.map((t) => t.assignee))];
 
   return (
-    <div style={{ padding: "16px" }}>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-2">
+          CollabBoard
+        </h1>
+        <p className="text-slate-400 text-sm">
+          Manage and track your team tasks efficiently.
+        </p>
+      </header>
+
       <FilterBar
         filters={filters}
         onFilterChange={setFilters}
@@ -43,11 +52,11 @@ export default function Board() {
       />
 
       {filteredTasks.length === 0 ? (
-        <p style={{ marginTop: "24px", color: "#666" }}>
-          No tasks match your filters
+        <p className="mt-10 text-center text-slate-500">
+          No tasks match your filters.
         </p>
       ) : (
-        <div style={{ display: "flex", gap: "24px", marginTop: "16px" }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {COLUMNS.map((col) => (
             <Column
               key={col.key}
