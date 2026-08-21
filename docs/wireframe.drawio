@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="XF2So3qMXBcVjuv8XTjb">
-    <mxGraphModel dx="1157" dy="870" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="925" dy="696" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -14,30 +13,30 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="6xxq0aW1oIdOB3AP0scU-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
-          <mxGeometry height="820" width="980" x="140" y="20" as="geometry" />
+          <mxGeometry height="820" width="980" x="110" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="navbar" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="NavBar" vertex="1">
           <mxGeometry height="60" width="120" x="290" y="150" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="filterbar" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="FilterBar" vertex="1">
           <mxGeometry height="60" width="120" x="690" y="150" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="to do" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="To&amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Do" vertex="1">
           <mxGeometry height="190" width="120" x="330" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="in progress" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Doing" vertex="1">
           <mxGeometry height="190" width="120" x="560" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="done" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Done" vertex="1">
           <mxGeometry height="190" width="120" x="760" y="380" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="taskcard" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="TaskCard" vertex="1">
           <mxGeometry height="60" width="80" x="350" y="490" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="taskcard" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="TaskCard" vertex="1">
           <mxGeometry height="60" width="100" x="570" y="490" as="geometry" />
         </mxCell>
-        <mxCell id="6xxq0aW1oIdOB3AP0scU-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="taskcard" vertex="1">
+        <mxCell id="6xxq0aW1oIdOB3AP0scU-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="TaskCard" vertex="1">
           <mxGeometry height="70" width="100" x="770" y="490" as="geometry" />
         </mxCell>
       </root>
