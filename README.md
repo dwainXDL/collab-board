@@ -216,3 +216,14 @@ The application handles:
 * **Session 2** - Express REST API
 * **Session 3** - MongoDB + client-side persistence
 * **Session 4** - Automated testing
+## Design Documents
+
+### Component Tree
+- [draw.io file](./docs/component-tree.drawio)
+
+![Component Tree](./docs/component-tree.png)
+
+### Wireframe
+- [draw.io file](./docs/wireframe.drawio)
+
+![Board Wireframe](./docs/wireframe.png)
