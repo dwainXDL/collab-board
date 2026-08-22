@@ -9,8 +9,21 @@ export default function App() {
   return (
     <TasksProvider>
       <BrowserRouter>
-        <nav>
-          <Link to="/">Board</Link> · <Link to="/tasks/new">New task</Link>
+        <nav className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-2">
+            <Link
+              to="/"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+            >
+              Board
+            </Link>
+            <Link
+              to="/tasks/new"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              New task
+            </Link>
+          </div>
         </nav>
         <Routes>
           <Route path="/" element={<BoardPage />} />
