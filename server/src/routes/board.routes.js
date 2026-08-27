@@ -1,9 +1,9 @@
 import { Router } from "express";
-import * as boards from "../controllers/board.controller.js";
-import * as tasks from "../controllers/task.controller.js";
+import * as controller from "../controllers/board.controller.js";
 
 const router = Router();
-router.get("/", boards.list);
-router.post("/", boards.create);
-router.get("/:id/tasks", tasks.listByBoard);
+
+router.post("/", controller.createBoard);
+router.get("/", controller.getBoards);
+
 export default router;

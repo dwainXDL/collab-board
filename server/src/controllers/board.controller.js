@@ -1,6 +1,14 @@
-// filled in with board issue (list/create - with ownership)
-const todo = (req, res) =>
-  res.status(501).json({ message: "NOT IMPLEMENTED YET...", code: "NOT_IMPLEMENTED" });
+import {
+  createBoardService,
+  getBoardsService,
+} from "../services/board.service.js";
 
-export const list = todo;
-export const create = todo;
+export const createBoard = (req, res) => {
+  const board = createBoardService(req.body);
+  res.status(201).json(board);
+};
+
+export const getBoards = (req, res) => {
+  const boards = getBoardsService();
+  res.json(boards);
+};
