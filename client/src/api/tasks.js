@@ -3,8 +3,14 @@ import { mockTasks } from "../data/mockTasks";
 const delay = (data, ms = 400) =>
   new Promise((resolve) => setTimeout(() => resolve(data), ms));
 
+const fail = (ms = 400) =>
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Simulated network error")), ms),
+  );
+
 export function getTasks() {
-  return delay([...mockTasks]);
+  const shouldFail = new URLSearchParams(window.location.search).has("fail");
+  return shouldFail ? fail() : delay([...mockTasks]);
 }
 
 export function createTask(data) {
