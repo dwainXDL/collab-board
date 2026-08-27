@@ -1,9 +1,17 @@
-import { createBoard, getBoards } from "../repositories/board.repo.js";
+import { randomUUID } from "node:crypto";
+import * as boardRepo from "../repositories/board.repo.js";
 
-export const createBoardService = (board) => {
-  return createBoard(board);
-};
+export function createBoard(userId, { name }) {
+  const board = {
+    id: randomUUID(),
+    name,
+    ownerId: userId,
+    members: [userId],
+  };
 
-export const getBoardsService = () => {
-  return getBoards();
-};
+  return boardRepo.createBoard(board);
+}
+
+export function listBoardsForUser(userId) {
+  return boardRepo.listBoards().filter((b) => b.members.includes(userId));
+}

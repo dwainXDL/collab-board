@@ -1,14 +1,11 @@
-import {
-  createBoardService,
-  getBoardsService,
-} from "../services/board.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import * as boardService from "../services/board.service.js";
 
-export const createBoard = (req, res) => {
-  const board = createBoardService(req.body);
+export const create = asyncHandler(async (req, res) => {
+  const board = boardService.createBoard(req.user.id, req.body);
   res.status(201).json(board);
-};
+});
 
-export const getBoards = (req, res) => {
-  const boards = getBoardsService();
-  res.json(boards);
-};
+export const list = asyncHandler(async (req, res) => {
+  res.json(boardService.listBoardsForUser(req.user.id));
+});

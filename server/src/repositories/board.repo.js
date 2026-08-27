@@ -5,6 +5,4 @@ export const createBoard = (board) => {
   return board;
 };
 
-export const getBoards = () => {
-  return boards;
-};
+export const listBoards = () => boards;
