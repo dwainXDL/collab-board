@@ -1,12 +1,21 @@
 import { useParams, Link } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
+import Spinner from "../components/Spinner";
 
 export default function TaskDetailPage() {
   const { id } = useParams();
-  const { tasks } = useTasks();
+  const { tasks, loading } = useTasks();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Spinner />
+      </div>
+    );
+  }
+
   const task = tasks.find((t) => t.id === id);
 
-  // TODO: when real API is wired, !task is true during loading — add a loading state to avoid flashing "not found"
   if (!task) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">

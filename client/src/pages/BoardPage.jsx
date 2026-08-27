@@ -1,6 +1,7 @@
 import { useTasks } from "../hooks/useTasks";
 import Board from "../components/Board";
 import Button from "../components/Button";
+import Spinner from "../components/Spinner";
 
 export default function BoardPage() {
   const { tasks, loading, error, retry } = useTasks();
@@ -8,9 +9,7 @@ export default function BoardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <p className="text-slate-400 font-medium animate-pulse">
-          Loading tasks...
-        </p>
+        <Spinner />
       </div>
     );
   }
