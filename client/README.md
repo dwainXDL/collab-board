@@ -1,20 +1,6 @@
-# 📋 CollabBoard
+# 📋 CollabBoard - Client
 
-A collaborative **Kanban-style task board** built with React. Create tasks, move them between columns, assign members, filter and search tasks, and view detailed task information. (scope for now...)
-
-## 📌 Project Status
-
-**🟢 Session 1 - Frontend Complete**
-
-The frontend is fully functional with mock data and is architected to integrate with the real backend in the next session.
-
-## 🛠️ Tech Stack
-
-* **React 19** + **Vite** - Frontend
-* **React Router** - Client-side routing
-* **Context + useReducer** - Global state management
-* **Mock API** - Promise-based API with artificial delay
-* **ESLint + Prettier** - Code quality and formatting
+The **React (Vite) frontend** for CollabBoard. For the project overview, full tech stack, team, and milestones, see the [root README](../README.md).
 
 ## 🚀 Getting Started
 
@@ -22,208 +8,81 @@ The frontend is fully functional with mock data and is architected to integrate 
 
 * **Node.js 18+**
 
-### Installation
+### Installation & Dev Server
 
 ```bash
 npm install
-```
-
-### ▶ Start the development server
-
-```bash
-npm run dev
-```
-
-The app will be available at:
-
-```text
-http://localhost:5173
+npm run dev        # http://localhost:5173
 ```
 
 ### 🧰 Other Scripts
 
 ```bash
 npm run lint                  # Run ESLint
-npm run build                 # Create production build
-npm run preview               # Preview production build
-npx prettier --write <files>  # Format specific files
+npm run build                 # Production build
+npm run preview               # Preview the production build
+npx prettier --write <files>  # Format specific files (not the whole repo)
 ```
 
 ## 📁 Project Structure
 
 ```text
 src/
-├── api/           # Network/API calls - mock for now
-├── components/    # eusable UI components
-├── pages/         # Route-level components
-├── hooks/         # Shared stateful logic
-├── context/       # Global task state
-├── utils/         # Pure utility functions
-└── data/          # Mock data
+├── api/          # All network/API calls (mock for now) - nothing else calls fetch
+├── components/   # Reusable UI (Board, Column, TaskCard, FilterBar, Button, Spinner)
+├── pages/        # Route-level components (BoardPage, NewTaskPage, TaskDetailPage, NotFoundPage)
+├── hooks/        # Shared stateful logic (useTasks)
+├── context/      # Global task state (TasksProvider + useReducer)
+├── utils/        # Pure utility functions (filterTasks)
+└── data/         # mockTasks.js - stand-in database (removed once the API is live)
 ```
-
-### 🧩 Key Components
-
-* `Board` - Main Kanban board
-* `Column` - Individual task column
-* `TaskCard` - Task display and actions
-* `FilterBar` - Filtering and search controls
-* `Button` - Reusable button component
-
-### 📄 Pages
-
-* `BoardPage` - Main board
-* `NotFoundPage` - 404 page
-
-### 🗃️ Data
-
-* `mockTasks.js` - Temporary mock database
 
 ## 📐 Architecture & Data Flow
 
-CollabBoard follows a simple separation-of-concerns architecture:
+`TasksProvider` (Context + `useReducer`) is the **single source of truth** for tasks.
 
-```text
-                    ┌──────────────────┐
-                    │   TasksProvider  │
-                    │ Context + Reducer│
-                    └────────┬─────────┘
-                             │
-                    ┌────────▼─────────┐
-                    │     useTasks()   │
-                    └────────┬─────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              │              │              │
-        ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐
-        │   Pages   │  │ Components│  │   Hooks   │
-        └───────────┘  └───────────┘  └───────────┘
-                             │
-                       ┌─────▼─────┐
-                       │    API    │
-                       └─────┬─────┘
-                             │
-                         Mock Data
-```
+On mount it:
 
-### 🧠 State Management
-
-`TasksProvider` is the **single source of truth** for tasks.
-
-On mount:
-
-1. Calls `api/getTasks()`
-2. Displays the loading state
+1. Calls `api/getTasks()` (with an artificial delay)
+2. Shows a loading state
 3. Dispatches a `loaded` action
-4. Handles errors and exposes retry functionality
-5. Provides task data to the rest of the application
+4. Exposes `error` + `retry`
+5. Provides task data to the rest of the app
 
-Components access state through `useTasks()` and modify it using actions such as:
-
-* `added`
-* `moved`
-* `deleted`
+Components read state through `useTasks()` and modify it with actions: `added`, `moved`, `deleted`.
 
 ### 🔌 API Layer
 
-All network communication is isolated inside `api/`.
-
-Components **never call the API directly**. This keeps the frontend ready to switch from mock data to the real Express REST API in Session 2.
+All network communication is isolated inside `api/`. Components **never call the API directly** - this keeps the frontend ready to swap mock data for the real Express REST API in M2 with no component changes.
 
 ## 🧭 Routing
 
-| Route        | Purpose              |
-| ------------ | -------------------- |
-| `/`          | Main task board      |
-| `/tasks/new` | Create a new task    |
-| `/tasks/:id` | View task details    |
-| `*`          | 404 / Not Found      |
+| Route        | Purpose                               |
+| ------------ | ------------------------------------- |
+| `/`          | Main task board                       |
+| `/tasks/new` | Create a new task                     |
+| `/tasks/:id` | View task details (not-found handled) |
+| `*`          | 404 / Not Found                       |
 
-## ✨ Features - Assignment 1
+## ✨ Features (Assignment 1)
 
-### 📋 Board
+* **Board** - To Do / Doing / Done columns with per-column counts
+* **Create Tasks** - controlled form with validation
+* **Move & Delete** - move between columns; delete asks for confirmation
+* **Task Details** - dedicated `/tasks/:id` route with graceful not-found state
+* **Filter & Search** - by status/assignee + title search, reflected in the URL
+* **Four UI States** - loading / error(+retry) / empty / success
 
-* Three Kanban columns:
-
-  * **To Do**
-  * **Doing**
-  * **Done**
-* Per-column task counts
-
-### ➕ Create Tasks
-
-* Controlled form
-* Input validation
-* Member assignment
-* Task details
-
-### 🔀 Move & Delete
-
-* Move tasks between columns
-* Delete tasks
-* Confirmation before deletion
-
-### 🔎 Task Details
-
-* Dedicated `/tasks/:id` route
-* Full task information
-* Graceful not-found state for invalid IDs
-
-### 🎯 Filter & Search
-
-* Filter by **status**
-* Filter by **assignee**
-* earch by task title
-* Filter/search state stored in the URL
-
-### 🖥️ Four UI States
-
-The application handles:
-
-* **Loading**
-* **Error** + retry
-* **Empty**
-* **Success**
-
-## 👥 Team
-
-| Member                            | Contribution                                                  |
-| --------------------------------- | ------------------------------------------------------------- |
-| **Dwain** *(Project Lead)*        | App skeleton, routing, Context + reducer, PR reviews & merges |
-| **Yameesha**                      | Mock data + API module                                        |
-| **Heshala**                       | Board + Column layout                                         |
-| **Thamindu**                      | TaskCard move/delete, Button component, four UI states        |
-| **Ashen**                         | Create-task form + validation                                 |
-| **Thiranya**                      | Filter & search + URL state                                   |
-| **Remaining Member(s)**           | *To be added*                                                 |
-
-## ⚠️ Known Limitations
-
-* Runs entirely on **in-memory mock data**
-
-  * Changes are lost after refreshing the page
-  * Session 2 introduces the real backend
-  * Session 3 adds MongoDB + client-side persistence
-* No authentication
-* No real-time synchronization
-* No offline support
-* No automated tests yet *(planned for Session 4)*
-* Deep-linking directly to `/tasks/:id` may briefly display **"Task not found"** during the initial loading delay because the detail page does not yet account for the initial loading state.
-
-## 🗺️ Development Roadmap
-
-* **Session 1** - React frontend + mock API
-* **Session 2** - Express REST API
-* **Session 3** - MongoDB + client-side persistence
-* **Session 4** - Automated testing
-## Design Documents
+## 📎 Design Documents
 
 ### Component Tree
-- [draw.io file](./docs/component-tree.drawio)
+
+* [draw.io file](./docs/component-tree.drawio)
 
 ![Component Tree](./docs/component-tree.png)
 
 ### Wireframe
-- [draw.io file](./docs/wireframe.drawio)
+
+* [draw.io file](./docs/wireframe.drawio)
 
 ![Board Wireframe](./docs/wireframe.png)
