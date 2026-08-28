@@ -1,6 +1,11 @@
-// filled in with board issue (list/create - with ownership)
-const todo = (req, res) =>
-  res.status(501).json({ message: "NOT IMPLEMENTED YET...", code: "NOT_IMPLEMENTED" });
+import { asyncHandler } from "../utils/asyncHandler.js";
+import * as boardService from "../services/board.service.js";
 
-export const list = todo;
-export const create = todo;
+export const create = asyncHandler(async (req, res) => {
+  const board = boardService.createBoard(req.user.id, req.body);
+  res.status(201).json(board);
+});
+
+export const list = asyncHandler(async (req, res) => {
+  res.json(boardService.listBoardsForUser(req.user.id));
+});
