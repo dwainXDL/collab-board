@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useState, useCallback } from "react";
 import { TasksContext } from "./TasksContext";
 import { getTasks } from "../api/tasks";
+import { useBoard } from "../hooks/useBoard";
 
 function tasksReducer(state, action) {
   switch (action.type) {
@@ -20,34 +21,45 @@ function tasksReducer(state, action) {
 }
 
 export function TasksProvider({ children }) {
+  const { currentBoard } = useBoard();
   const [tasks, dispatch] = useReducer(tasksReducer, []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const boardId = currentBoard?.id;
+
   const loadTasks = useCallback(() => {
-    getTasks()
+    if (!boardId) {
+      dispatch({ type: "loaded", tasks: [] });
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    getTasks(boardId)
       .then((data) => {
         dispatch({ type: "loaded", tasks: data });
-        setLoading(false);
       })
       .catch((err) => {
         setError(err.message || "Failed to load tasks");
-        setLoading(false);
-      });
-  }, []);
+      })
+      .finally(() => setLoading(false));
+  }, [boardId]);
 
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
 
   function retry() {
-    setLoading(true);
-    setError(null);
     loadTasks();
   }
 
   return (
-    <TasksContext.Provider value={{ tasks, dispatch, loading, error, retry }}>
+    <TasksContext.Provider
+      value={{ tasks, dispatch, loading, error, retry, boardId }}
+    >
       {children}
     </TasksContext.Provider>
   );

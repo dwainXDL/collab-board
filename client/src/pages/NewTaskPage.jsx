@@ -5,7 +5,7 @@ import { useTasks } from "../hooks/useTasks";
 import Button from "../components/Button";
 
 export default function NewTaskPage() {
-  const { dispatch } = useTasks();
+  const { dispatch, boardId } = useTasks();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -36,6 +36,7 @@ export default function NewTaskPage() {
 
     setSubmitting(true);
     const task = await createTask({
+      boardId,
       title: title.trim(),
       assignee: assignee.trim() || "Unassigned",
       status: "todo",
