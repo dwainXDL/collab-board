@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { createTask } from "../api/tasks";
 import { useTasks } from "../hooks/useTasks";
 import Button from "../components/Button";
+import DueDateCalendar from "../components/DueDateCalendar";
 
 export default function NewTaskPage() {
-  const { dispatch, boardId } = useTasks();
+  const { tasks, dispatch, boardId } = useTasks();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -27,6 +28,12 @@ export default function NewTaskPage() {
     }
     return next;
   }
+
+  const taskByDate = tasks.reduce((acc, task) => {
+    if (!acc[task.dueDate]) acc[task.dueDate] = [];
+    acc[task.dueDate].push(task);
+    return acc;
+  }, {});
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -103,23 +110,13 @@ export default function NewTaskPage() {
 
           {/* Due Date Input */}
           <div>
-            <label
-              htmlFor="dueDate"
-              className="block text-sm font-medium text-slate-300 mb-1.5"
-            >
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">
               Due date
             </label>
-            <input
-              id="dueDate"
-              type="date"
-              min={today}
+            <DueDateCalendar
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className={`w-full bg-slate-950 border ${
-                errors.dueDate
-                  ? "border-red-500/50 focus:border-red-500"
-                  : "border-slate-800 focus:border-indigo-500"
-              } rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none transition-colors`}
+              onChange={setDueDate}
+              taskByDate={taskByDate}
             />
             {errors.dueDate && (
               <p role="alert" className="text-red-400 text-xs mt-1.5">
