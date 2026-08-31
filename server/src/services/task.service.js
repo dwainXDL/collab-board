@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { taskRepository } from "../repositories/task.repo.js";
 import { NotFoundError } from "../utils/AppError.js";
+import { assertMember } from "./board.service.js";
 
-// NOTE: CRUD only
-export function createTask(data) {
+export function createTask(data, userId) {
+  assertMember(data.boardId, userId);
   const task = {
     id: randomUUID(),
     boardId: data.boardId,
@@ -17,18 +18,23 @@ export function createTask(data) {
   return taskRepository.create(task);
 }
 
-export function updateTask(id, patch) {
+export function updateTask(id, patch, userId) {
+  const task = taskRepository.findById(id);
+  if (!task) throw new NotFoundError("Task");
+  assertMember(task.boardId, userId);
   const updated = taskRepository.update(id, patch);
-  if (!updated) throw new NotFoundError("Task");
   return updated;
 }
 
-export function deleteTask(id) {
-  const removed = taskRepository.remove(id);
-  if (!removed) throw new NotFoundError("Task");
+export function deleteTask(id, userId) {
+  const task = taskRepository.findById(id);
+  if (!task) throw new NotFoundError("Task");
+  assertMember(task.boardId, userId);
+  taskRepository.remove(id);
 }
 
-export function listTasks(boardId, query = {}) {
+export function listTasks(boardId, userId, query = {}) {
+  assertMember(boardId, userId);
   let tasks = taskRepository.findByBoard(boardId);
 
   // filters
