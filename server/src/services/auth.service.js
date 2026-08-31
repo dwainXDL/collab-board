@@ -28,12 +28,12 @@ export async function register({ email, password }) {
 export async function login({ email, password }) {
   const user = userRepository.findByEmail(email);
   if (!user) {
-    throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
+    throw new AppError("Invalid Email or Password", 401, "INVALID_CREDENTIALS");
   }
 
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) {
-    throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
+    throw new AppError("Invalid Email or Password", 401, "INVALID_CREDENTIALS");
   }
 
   const token = jwt.sign(
