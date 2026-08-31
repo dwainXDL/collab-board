@@ -1,7 +1,17 @@
-// filled in by auth issue (register/login/ me - bcrypt + JWT)
-const todo = (req, res) =>
-  res.status(501).json({ message: "NOT IMPLEMENTED YET...", code: "NOT_IMPLEMENTED" });
+import { asyncHandler } from "../utils/asyncHandler.js";
+import * as authService from "../services/auth.service.js";
 
-export const register = todo;
-export const login = todo;
-export const me = todo;
+export const register = asyncHandler(async (req, res) => {
+  const user = await authService.register(req.body);
+  res.status(201).json({ user });
+});
+
+export const login = asyncHandler(async (req, res) => {
+  const { token, user } = await authService.login(req.body);
+  res.status(200).json({ token, user });
+});
+
+export const me = asyncHandler(async (req, res) => {
+  // // authenticate attached req.user = { id, email }; route it through the services so publicUser() stays the single exit point.
+  res.status(200).json({ user: authService.me(req.user) });
+});
