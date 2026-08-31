@@ -4,6 +4,7 @@ import { registerApi, loginApi } from "../api/auth";
 import { useAuth } from "../hooks/useAuth";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,7 +18,7 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await registerApi({ email, password });
+      await registerApi({ name, email, password });
       // register returns { user } with no token — log in right after to get one
       const data = await loginApi({ email, password });
       login(data.user, data.token);
@@ -43,6 +44,20 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300">
+              Name
+            </label>
+            <input
+              type="text"
+              required
+              minLength={2}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-700 bg-slate-800 p-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-300">
               Email

@@ -13,14 +13,14 @@ export function publicUser(user) {
   return safe;
 }
 
-export async function register({ email, password }) {
+export async function register({ name, email, password }) {
   const existing = userRepository.findByEmail(email);
   if (existing) {
     throw new AppError("Email already in use", 409, "EMAIL_IN_USE");
   }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  const user = userRepository.create({ email, passwordHash });
+  const user = userRepository.create({ email, passwordHash, name });
 
   return publicUser(user);
 }
@@ -37,7 +37,7 @@ export async function login({ email, password }) {
   }
 
   const token = jwt.sign(
-    { sub: user.id, email: user.email },
+    { sub: user.id, email: user.email, name: user.name },
     config.jwtSecret,
     {
       expiresIn: TOKEN_EXPIRY,
