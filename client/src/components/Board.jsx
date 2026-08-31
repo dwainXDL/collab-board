@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
 import { updateTaskStatus, deleteTask } from "../api/tasks";
@@ -14,6 +15,7 @@ const COLUMNS = [
 export default function Board() {
   const { tasks, dispatch } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [actionError, setActionError] = useState(null);
 
   const filters = {
     status: searchParams.get("status") || "all",
@@ -30,12 +32,20 @@ export default function Board() {
   };
 
   const handleMove = async (id, status) => {
-    await updateTaskStatus(id, status);
-    dispatch({ type: "moved", id, status });
+    try {
+      await updateTaskStatus(id, status);
+      dispatch({ type: "moved", id, status });
+    } catch (err) {
+      setActionError(err.message || "Failed to move task");
+    }
   };
   const handleDelete = async (id) => {
-    await deleteTask(id);
-    dispatch({ type: "deleted", id });
+    try {
+      await deleteTask(id);
+      dispatch({ type: "deleted", id });
+    } catch (err) {
+      setActionError(err.message || "Failed to delete task");
+    }
   };
 
   const filteredTasks = filterTasks(tasks, filters);
@@ -51,6 +61,19 @@ export default function Board() {
           Manage and track your team tasks efficiently.
         </p>
       </header>
+
+      {actionError && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-red-900 bg-red-950/50 p-3 text-sm text-red-400">
+          <span>{actionError}</span>
+          <button
+            onClick={() => setActionError(null)}
+            className="ml-4 rounded px-2 py-0.5 text-red-300 hover:bg-red-900/50"
+            aria-label="Dismiss error"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <FilterBar
         filters={filters}
