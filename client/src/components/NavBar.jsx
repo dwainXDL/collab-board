@@ -32,8 +32,10 @@ export default function NavBar() {
         <div className="ml-auto flex items-center gap-2">
           {token ? (
             <>
-              {user?.email && (
-                <span className="text-sm text-slate-400">{user.email}</span>
+              {(user?.name || user?.email) && (
+                <span className="text-sm text-slate-400">
+                  {user?.name || user?.email}
+                </span>
               )}
               <button
                 onClick={handleLogout}
