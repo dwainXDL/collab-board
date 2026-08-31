@@ -1,25 +1,15 @@
-export async function loginApi(credentials) {
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+import { request } from "./client";
+
+export function loginApi(credentials) {
+  return request("/api/auth/login", {
+    method: "POST",
     body: JSON.stringify(credentials),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Login failed');
-  }
-  return response.json();
 }
 
-export async function registerApi(userData) {
-  const response = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+export function registerApi(userData) {
+  return request("/api/auth/register", {
+    method: "POST",
     body: JSON.stringify(userData),
   });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Registration failed');
-  }
-  return response.json();
 }

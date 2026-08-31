@@ -19,7 +19,8 @@ export async function request(path, options = {}) {
   if (res.status === 401) {
     localStorage.removeItem("token");
     window.dispatchEvent(new Event("auth:expired"));
-    throw new Error("Unauthorized");
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message || "Unauthorized");
   }
 
   if (!res.ok) {
