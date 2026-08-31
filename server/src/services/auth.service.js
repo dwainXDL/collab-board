@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 import { AppError } from "../utils/AppError.js";
 import { userRepository } from "../repositories/user.repo.js";
+import { createBoard } from "./board.service.js";
 
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRY = "1h";
@@ -21,6 +22,8 @@ export async function register({ name, email, password }) {
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
   const user = userRepository.create({ email, passwordHash, name });
+
+  createBoard(user.id, { name: "My Board" });
 
   return publicUser(user);
 }
