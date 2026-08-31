@@ -36,9 +36,13 @@ export async function login({ email, password }) {
     throw new AppError("Invalid email or password", 401, "INVALID_CREDENTIALS");
   }
 
-  const token = jwt.sign({ sub: user.id, email: user.email }, config.jwtSecret, {
-    expiresIn: TOKEN_EXPIRY,
-  });
+  const token = jwt.sign(
+    { sub: user.id, email: user.email },
+    config.jwtSecret,
+    {
+      expiresIn: TOKEN_EXPIRY,
+    },
+  );
 
   return { token, user: publicUser(user) };
 }

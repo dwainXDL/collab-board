@@ -12,6 +12,6 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  // authenticate middleware already attached req.user = { id, email }
-  res.status(200).json({ user: req.user });
+  // // authenticate attached req.user = { id, email }; route it through the services so publicUser() stays the single exit point.
+  res.status(200).json({ user: authService.me(req.user) });
 });
