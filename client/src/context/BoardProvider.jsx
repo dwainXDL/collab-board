@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { BoardContext } from "./BoardContext";
 import { getBoards } from "../api/boards";
+import { useAuth } from "../hooks/useAuth";
 
 export function BoardProvider({ children }) {
+  const { token } = useAuth();
   const [boards, setBoards] = useState([]);
   const [currentBoard, setCurrentBoard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,13 +26,14 @@ export function BoardProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) {
       loadBoards();
     } else {
+      setBoards([]);
+      setCurrentBoard(null);
       setLoading(false);
     }
-  }, [loadBoards]);
+  }, [token, loadBoards]);
 
   function retry() {
     loadBoards();

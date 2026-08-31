@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
+import { updateTaskStatus, deleteTask } from "../api/tasks";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
 import { filterTasks } from "../utils/filterTasks";
@@ -28,8 +29,14 @@ export default function Board() {
     setSearchParams(params);
   };
 
-  const handleMove = (id, status) => dispatch({ type: "moved", id, status });
-  const handleDelete = (id) => dispatch({ type: "deleted", id });
+  const handleMove = async (id, status) => {
+    await updateTaskStatus(id, status);
+    dispatch({ type: "moved", id, status });
+  };
+  const handleDelete = async (id) => {
+    await deleteTask(id);
+    dispatch({ type: "deleted", id });
+  };
 
   const filteredTasks = filterTasks(tasks, filters);
   const teamMembers = [...new Set(tasks.map((t) => t.assignee))];
