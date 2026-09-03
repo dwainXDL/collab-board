@@ -30,8 +30,9 @@ export default function NewTaskPage() {
   }
 
   const taskByDate = tasks.reduce((acc, task) => {
-    if (!acc[task.dueDate]) acc[task.dueDate] = [];
-    acc[task.dueDate].push(task);
+    if (!task.dueDate) return acc; 
+    const key = task.dueDate.slice(0, 10); // "YYYY-MM-DD" from a string or a Date's ISO
+    (acc[key] ||= []).push(task);
     return acc;
   }, {});
 

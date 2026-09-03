@@ -12,6 +12,7 @@ export default function DueDateCalendar({ value, onChange, taskByDate }) {
   const initial = value ? new Date(value) : new Date();
   const [viewYear, setViewYear] = useState(initial.getFullYear());
   const [viewMonth, setViewMonth] = useState(initial.getMonth());
+  const todayStr = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
 
   const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -86,6 +87,7 @@ export default function DueDateCalendar({ value, onChange, taskByDate }) {
           const tasksOnDay = taskByDate[dateStr] || [];
           const isMarked = tasksOnDay.length > 0;
           const isSelected = dateStr === value;
+          const isPast = dateStr < todayStr;
 
           const tooltip = isMarked
             ? tasksOnDay.map((t) => `${t.title} (${t.assignee})`).join(", ")
@@ -95,18 +97,21 @@ export default function DueDateCalendar({ value, onChange, taskByDate }) {
             <button
               key={i}
               type="button"
+              disabled={isPast}
               title={tooltip}
               onClick={() => onChange(dateStr)}
               className={`due-date-calendar-cell relative aspect-square flex items-center justify-center text-sm rounded-lg transition-colors ${
-                isSelected
-                  ? "marked selected bg-indigo-500 text-white font-semibold"
-                  : isMarked
-                    ? "marked text-indigo-300 hover:bg-slate-800"
-                    : "text-slate-300 hover:bg-slate-800"
+                isPast
+                  ? "text-slate-700 cursor-not-allowed"
+                  : isSelected
+                    ? "marked selected bg-indigo-500 text-white font-semibold"
+                    : isMarked
+                      ? "marked text-indigo-300 hover:bg-slate-800"
+                      : "text-slate-300 hover:bg-slate-800"
               }`}
             >
               {day}
-              {isMarked && !isSelected && (
+              {isMarked && !isSelected && !isPast && (
                 <span className="absolute bottom-1 w-1 h-1 rounded-full bg-indigo-400" />
               )}
             </button>
