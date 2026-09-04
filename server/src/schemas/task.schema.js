@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { TASK_STATUSES, TASK_PRIORITIES } from "../constants/enums.js";
 
-const statusEnum = z.enum(["todo", "doing", "done"]);
-const priorityEnum = z.enum(["low", "normal", "high"]);
+const statusEnum = z.enum(TASK_STATUSES);
+const priorityEnum = z.enum(TASK_PRIORITIES);
 
 // optional
 const dueDate = z
