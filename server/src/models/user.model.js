@@ -4,7 +4,7 @@ import { baseOptions, toIdJSON } from "./model.options.js";
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, minlength: 2 },
-    
+
     email: { type: String, required: true, trim: true, lowercase: true },
     passwordHash: { type: String, required: true },
   },

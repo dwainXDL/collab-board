@@ -4,7 +4,11 @@ import { MEMBER_ROLES } from "../constants/enums.js";
 
 const memberSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     role: { type: String, enum: MEMBER_ROLES, default: "viewer" },
   },
   { _id: false },
@@ -13,7 +17,11 @@ const memberSchema = new mongoose.Schema(
 const boardSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     members: { type: [memberSchema], default: [] },
   },
   baseOptions,

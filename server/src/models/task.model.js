@@ -4,7 +4,11 @@ import { TASK_STATUSES, TASK_PRIORITIES } from "../constants/enums.js";
 
 const taskSchema = new mongoose.Schema(
   {
-    boardId: { type: mongoose.Schema.Types.ObjectId, ref: "Board", required: true },
+    boardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Board",
+      required: true,
+    },
     title: { type: String, required: true, trim: true, minlength: 3 },
     description: { type: String, trim: true, default: "" },
     status: { type: String, enum: TASK_STATUSES, default: "todo" },
