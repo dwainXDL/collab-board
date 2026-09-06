@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTask } from "../api/tasks";
+import { putTask } from "../db/localDB";
 import { useTasks } from "../hooks/useTasks";
 import Button from "../components/Button";
 import DueDateCalendar from "../components/DueDateCalendar";
@@ -51,6 +52,7 @@ export default function NewTaskPage() {
       dueDate,
     });
     dispatch({ type: "added", task });
+    putTask(task);
     navigate("/");
   }
 
