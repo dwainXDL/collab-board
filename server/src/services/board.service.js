@@ -1,4 +1,5 @@
 import * as boardRepo from "../repositories/board.repo.js";
+import { taskRepository } from "../repositories/task.repo.js";
 import { NotFoundError, ForbiddenError } from "../utils/AppError.js";
 
 export async function assertMember(boardId, userId) {
@@ -20,4 +21,8 @@ export async function createBoard(userId, { name }) {
 export async function listBoardsForUser(userId) {
   const boards = await boardRepo.listBoards();
   return boards.filter((b) => b.members.some((m) => m.userId.equals(userId)));
+}
+export async function getBoardStats(boardId, userId) {
+  await assertMember(boardId, userId);
+  return taskRepository.overdueStatsByBoard(boardId);
 }

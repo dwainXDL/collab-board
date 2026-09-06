@@ -29,4 +29,28 @@ export const taskRepository = {
     const result = await Task.findByIdAndDelete(id);
     return !!result;
   },
-};
+  overdueStatsByBoard(boardId, now = new Date()) {
+    return Task.aggregate([
+      {
+        $match: {
+          boardId,
+          dueDate: { $lt: now },
+          status: { $ne: "done" },
+        },
+      },
+      {
+        $group: {
+          _id: "$assignee",
+          overdueCount: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          assignee: "$_id",
+          overdueCount: 1,
+        },
+      },
+    ]);
+  },
+  };
