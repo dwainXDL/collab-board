@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { BoardContext } from "./BoardContext";
 import { getBoards } from "../api/boards";
 import { useAuth } from "../hooks/useAuth";
+import { getLocalBoards, putBoards, clearAll } from "../db/localDB";
 
 export function BoardProvider({ children }) {
   const { token } = useAuth();
@@ -11,13 +12,25 @@ export function BoardProvider({ children }) {
   const [error, setError] = useState(null);
 
   const loadBoards = useCallback(() => {
-    setLoading(true);
     setError(null);
 
+    // 1. Read from local cache first (instant render)
+    getLocalBoards()
+      .then((cached) => {
+        if (cached.length > 0) {
+          setBoards(cached);
+          setCurrentBoard((prev) => prev ?? cached[0]);
+          setLoading(false);
+        }
+      })
+      .catch(() => {});
+
+    // 2. Fetch from server and reconcile
     getBoards()
       .then((data) => {
         setBoards(data);
         setCurrentBoard((prev) => prev ?? data[0] ?? null);
+        putBoards(data);
       })
       .catch((err) => {
         setError(err.message || "Failed to load boards");
@@ -32,6 +45,7 @@ export function BoardProvider({ children }) {
       setBoards([]);
       setCurrentBoard(null);
       setLoading(false);
+      clearAll();
     }
   }, [token, loadBoards]);
 
