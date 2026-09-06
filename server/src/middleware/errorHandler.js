@@ -6,6 +6,11 @@ export function notFoundHandler(req, res, next) {
 
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
+  if (err?.code === 11000) {
+  err.status = 409;
+  err.code = "EMAIL_IN_USE";
+  err.message = "Email already exists";
+}
   const status = err.status ?? 500;
   const body = {
     message: status === 500 ? "SOMETHING WENT WRONG..." : err.message,
