@@ -14,7 +14,7 @@ export const taskRepository = {
   },
 
   update(id, patch) {
-    return Task.findByIdAndUpdate(id, patch, { new: true });
+    return Task.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
   },
 
   async remove(id) {

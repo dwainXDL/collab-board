@@ -1,48 +1,42 @@
-import { randomUUID } from "node:crypto";
 import { taskRepository } from "../repositories/task.repo.js";
 import { NotFoundError } from "../utils/AppError.js";
 import { assertMember } from "./board.service.js";
 
-export function createTask(data, userId) {
-  assertMember(data.boardId, userId);
-  const task = {
-    id: randomUUID(),
+export async function createTask(data, userId) {
+  await assertMember(data.boardId, userId);
+  return taskRepository.create({
     boardId: data.boardId,
     title: data.title,
-    status: data.status, // zod defaults to "todo"
+    status: data.status,
     assignee: data.assignee ?? null,
     dueDate: data.dueDate ?? null,
-    priority: data.priority, // zod defaults to "normal"
-    createdAt: new Date().toISOString(),
-  };
-  return taskRepository.create(task);
+    priority: data.priority,
+  });
 }
 
-export function updateTask(id, patch, userId) {
-  const task = taskRepository.findById(id);
+export async function updateTask(id, patch, userId) {
+  const task = await taskRepository.findById(id);
   if (!task) throw new NotFoundError("Task");
-  assertMember(task.boardId, userId);
-  const updated = taskRepository.update(id, patch);
+  await assertMember(task.boardId, userId);
+  const updated = await taskRepository.update(id, patch);
   return updated;
 }
 
-export function deleteTask(id, userId) {
-  const task = taskRepository.findById(id);
+export async function deleteTask(id, userId) {
+  const task = await taskRepository.findById(id);
   if (!task) throw new NotFoundError("Task");
-  assertMember(task.boardId, userId);
-  taskRepository.remove(id);
+  await assertMember(task.boardId, userId);
+  await taskRepository.remove(id);
 }
 
-export function listTasks(boardId, userId, query = {}) {
-  assertMember(boardId, userId);
-  let tasks = taskRepository.findByBoard(boardId);
+export async function listTasks(boardId, userId, query = {}) {
+  await assertMember(boardId, userId);
+  let tasks = await taskRepository.findByBoard(boardId);
 
-  // filters
   if (query.status) tasks = tasks.filter((t) => t.status === query.status);
   if (query.assignee)
     tasks = tasks.filter((t) => t.assignee === query.assignee);
 
-  // sort: ?sort=field (asc) or ?sort=-field (desc)
   if (query.sort) {
     const desc = query.sort.startsWith("-");
     const key = desc ? query.sort.slice(1) : query.sort;
@@ -54,7 +48,6 @@ export function listTasks(boardId, userId, query = {}) {
     });
   }
 
-  // pagination: only when ?limit= is provided
   if (query.limit) {
     const limit = Math.max(1, Number(query.limit) || 1);
     const page = Math.max(1, Number(query.page) || 1);

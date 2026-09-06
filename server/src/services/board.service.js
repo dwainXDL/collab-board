@@ -1,25 +1,23 @@
-import { randomUUID } from "node:crypto";
 import * as boardRepo from "../repositories/board.repo.js";
 import { NotFoundError, ForbiddenError } from "../utils/AppError.js";
 
-export function assertMember(boardId, userId) {
-  const board = boardRepo.findById(boardId);
+export async function assertMember(boardId, userId) {
+  const board = await boardRepo.findById(boardId);
   if (!board) throw new NotFoundError("Board");
-  if (!board.members.includes(userId)) throw new ForbiddenError();
+  if (!board.members.some((m) => m.userId.equals(userId)))
+    throw new ForbiddenError();
   return board;
 }
 
-export function createBoard(userId, { name }) {
-  const board = {
-    id: randomUUID(),
+export async function createBoard(userId, { name }) {
+  return boardRepo.createBoard({
     name,
     ownerId: userId,
-    members: [userId],
-  };
-
-  return boardRepo.createBoard(board);
+    members: [{ userId, role: "owner" }],
+  });
 }
 
-export function listBoardsForUser(userId) {
-  return boardRepo.listBoards().filter((b) => b.members.includes(userId));
+export async function listBoardsForUser(userId) {
+  const boards = await boardRepo.listBoards();
+  return boards.filter((b) => b.members.some((m) => m.userId.equals(userId)));
 }
