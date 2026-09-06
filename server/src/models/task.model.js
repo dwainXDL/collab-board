@@ -25,4 +25,9 @@ const taskSchema = new mongoose.Schema(
   baseOptions,
 );
 
+taskSchema.index({ boardId: 1, status: 1, position: 1 });
+taskSchema.index({ boardId: 1, dueDate: 1 });
+taskSchema.index({ assignee: 1, status: 1 });
+taskSchema.index({ title: "text", description: "text" }); // optional text search
+
 export const Task = mongoose.model("Task", taskSchema);
