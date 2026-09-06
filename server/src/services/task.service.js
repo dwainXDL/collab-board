@@ -1,5 +1,5 @@
 import { taskRepository } from "../repositories/task.repo.js";
-import { NotFoundError } from "../utils/AppError.js";
+import { NotFoundError, ConflictError } from "../utils/AppError.js";
 import { assertMember } from "./board.service.js";
 
 export async function createTask(data, userId) {
@@ -15,10 +15,29 @@ export async function createTask(data, userId) {
 }
 
 export async function updateTask(id, patch, userId) {
-  const task = await taskRepository.findById(id);
-  if (!task) throw new NotFoundError("Task");
-  await assertMember(task.boardId, userId);
-  const updated = await taskRepository.update(id, patch);
+  const existing = await taskRepository.findById(id);
+  if (!existing) throw new NotFoundError("Task");
+  await assertMember(existing.boardId, userId);
+
+  const { baseVersion, ...changes } = patch;
+
+  // No baseVersion -> plain update (backward-compatible, no concurrency check)
+  if (baseVersion === undefined) {
+    return taskRepository.update(id, changes);
+  }
+
+  const updated = await taskRepository.updateOptimistic(
+    id,
+    baseVersion,
+    changes,
+  );
+
+  if (!updated) {
+    const current = await taskRepository.findById(id);
+    if (!current) throw new NotFoundError("Task");
+    throw new ConflictError({ current, yourVersion: baseVersion });
+  }
+
   return updated;
 }
 

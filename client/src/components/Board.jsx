@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
 import { updateTaskStatus, deleteTask } from "../api/tasks";
+import { putTask, removeTask } from "../db/localDB";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
 import { filterTasks } from "../utils/filterTasks";
@@ -35,6 +36,8 @@ export default function Board() {
     try {
       await updateTaskStatus(id, status);
       dispatch({ type: "moved", id, status });
+      const task = tasks.find((t) => t.id === id);
+      if (task) putTask({ ...task, status });
     } catch (err) {
       setActionError(err.message || "Failed to move task");
     }
@@ -43,6 +46,7 @@ export default function Board() {
     try {
       await deleteTask(id);
       dispatch({ type: "deleted", id });
+      removeTask(id);
     } catch (err) {
       setActionError(err.message || "Failed to delete task");
     }

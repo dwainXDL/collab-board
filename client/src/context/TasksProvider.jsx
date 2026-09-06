@@ -2,6 +2,7 @@ import { useReducer, useEffect, useState, useCallback } from "react";
 import { TasksContext } from "./TasksContext";
 import { getTasks } from "../api/tasks";
 import { useBoard } from "../hooks/useBoard";
+import { getLocalTasks, putTasks } from "../db/localDB";
 
 function tasksReducer(state, action) {
   switch (action.type) {
@@ -35,12 +36,23 @@ export function TasksProvider({ children }) {
       return;
     }
 
-    setLoading(true);
     setError(null);
 
+    // 1. Read from local cache first (instant render)
+    getLocalTasks(boardId)
+      .then((cached) => {
+        if (cached.length > 0) {
+          dispatch({ type: "loaded", tasks: cached });
+          setLoading(false);
+        }
+      })
+      .catch(() => {});
+
+    // 2. Fetch from server and reconcile
     getTasks(boardId)
       .then((data) => {
         dispatch({ type: "loaded", tasks: data });
+        putTasks(data);
       })
       .catch((err) => {
         setError(err.message || "Failed to load tasks");
