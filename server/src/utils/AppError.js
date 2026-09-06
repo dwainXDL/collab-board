@@ -25,3 +25,9 @@ export class ValidationError extends AppError {
     super("VALIDATION FAILED!", 400, "VALIDATION_ERROR", details);
   }
 }
+
+export class ConflictError extends AppError {
+  constructor(details) {
+    super("VERSION CONFLICT!", 409, "VERSION_CONFLICT", details);
+  }
+}
