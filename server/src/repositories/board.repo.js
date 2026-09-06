@@ -1,10 +1,7 @@
-const boards = [];
+import { Board } from "../models/board.model.js";
 
-export const createBoard = (board) => {
-  boards.push(board);
-  return board;
-};
+export const createBoard = (data) => Board.create(data);
 
-export const findById = (id) => boards.find((b) => b.id === id) ?? null;
+export const findById = (id) => Board.findById(id);
 
-export const listBoards = () => boards;
+export const listBoards = () => Board.find();
