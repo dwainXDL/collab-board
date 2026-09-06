@@ -1,8 +1,8 @@
-import { useReducer, useEffect, useState, useCallback } from "react";
+import { useReducer, useEffect, useState, useCallback, useRef } from "react";
 import { TasksContext } from "./TasksContext";
 import { getTasks } from "../api/tasks";
 import { useBoard } from "../hooks/useBoard";
-import { getLocalTasks, putTasks } from "../db/localDB";
+import { getLocalTasks, reconcileTasks } from "../db/localDB";
 
 function tasksReducer(state, action) {
   switch (action.type) {
@@ -26,6 +26,8 @@ export function TasksProvider({ children }) {
   const [tasks, dispatch] = useReducer(tasksReducer, []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [offline, setOffline] = useState(false);
+  const serverLoaded = useRef(false);
 
   const boardId = currentBoard?.id;
 
@@ -37,11 +39,13 @@ export function TasksProvider({ children }) {
     }
 
     setError(null);
+    setOffline(false);
+    serverLoaded.current = false;
 
     // 1. Read from local cache first (instant render)
     getLocalTasks(boardId)
       .then((cached) => {
-        if (cached.length > 0) {
+        if (cached.length > 0 && !serverLoaded.current) {
           dispatch({ type: "loaded", tasks: cached });
           setLoading(false);
         }
@@ -51,11 +55,25 @@ export function TasksProvider({ children }) {
     // 2. Fetch from server and reconcile
     getTasks(boardId)
       .then((data) => {
+        serverLoaded.current = true;
         dispatch({ type: "loaded", tasks: data });
-        putTasks(data);
+        setOffline(false);
+        reconcileTasks(boardId, data);
       })
       .catch((err) => {
-        setError(err.message || "Failed to load tasks");
+        if (!serverLoaded.current) {
+          getLocalTasks(boardId)
+            .then((cached) => {
+              if (cached.length > 0) {
+                setOffline(true);
+              } else {
+                setError(err.message || "Failed to load tasks");
+              }
+            })
+            .catch(() => {
+              setError(err.message || "Failed to load tasks");
+            });
+        }
       })
       .finally(() => setLoading(false));
   }, [boardId]);
@@ -70,7 +88,7 @@ export function TasksProvider({ children }) {
 
   return (
     <TasksContext.Provider
-      value={{ tasks, dispatch, loading, error, retry, boardId }}
+      value={{ tasks, dispatch, loading, error, offline, retry, boardId }}
     >
       {children}
     </TasksContext.Provider>

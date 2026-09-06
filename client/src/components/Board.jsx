@@ -14,7 +14,7 @@ const COLUMNS = [
 ];
 
 export default function Board() {
-  const { tasks, dispatch } = useTasks();
+  const { tasks, dispatch, offline } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionError, setActionError] = useState(null);
 
@@ -65,6 +65,12 @@ export default function Board() {
           Manage and track your team tasks efficiently.
         </p>
       </header>
+
+      {offline && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-900 bg-amber-950/50 p-3 text-sm text-amber-400">
+          <span>You are offline. Showing cached data.</span>
+        </div>
+      )}
 
       {actionError && (
         <div className="mb-4 flex items-center justify-between rounded-lg border border-red-900 bg-red-950/50 p-3 text-sm text-red-400">

@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { BoardContext } from "./BoardContext";
 import { getBoards } from "../api/boards";
 import { useAuth } from "../hooks/useAuth";
-import { getLocalBoards, putBoards, clearAll } from "../db/localDB";
+import { getLocalBoards, reconcileBoards, clearAll } from "../db/localDB";
 
 export function BoardProvider({ children }) {
   const { token } = useAuth();
@@ -10,14 +10,18 @@ export function BoardProvider({ children }) {
   const [currentBoard, setCurrentBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [offline, setOffline] = useState(false);
+  const serverLoaded = useRef(false);
 
   const loadBoards = useCallback(() => {
     setError(null);
+    setOffline(false);
+    serverLoaded.current = false;
 
     // 1. Read from local cache first (instant render)
     getLocalBoards()
       .then((cached) => {
-        if (cached.length > 0) {
+        if (cached.length > 0 && !serverLoaded.current) {
           setBoards(cached);
           setCurrentBoard((prev) => prev ?? cached[0]);
           setLoading(false);
@@ -28,12 +32,27 @@ export function BoardProvider({ children }) {
     // 2. Fetch from server and reconcile
     getBoards()
       .then((data) => {
+        serverLoaded.current = true;
         setBoards(data);
         setCurrentBoard((prev) => prev ?? data[0] ?? null);
-        putBoards(data);
+        setOffline(false);
+        reconcileBoards(data);
       })
       .catch((err) => {
-        setError(err.message || "Failed to load boards");
+        if (!serverLoaded.current) {
+          // If cache was rendered, show offline indicator instead of blocking error
+          getLocalBoards()
+            .then((cached) => {
+              if (cached.length > 0) {
+                setOffline(true);
+              } else {
+                setError(err.message || "Failed to load boards");
+              }
+            })
+            .catch(() => {
+              setError(err.message || "Failed to load boards");
+            });
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -45,6 +64,7 @@ export function BoardProvider({ children }) {
       setBoards([]);
       setCurrentBoard(null);
       setLoading(false);
+      setOffline(false);
       clearAll();
     }
   }, [token, loadBoards]);
@@ -55,7 +75,15 @@ export function BoardProvider({ children }) {
 
   return (
     <BoardContext.Provider
-      value={{ boards, currentBoard, setCurrentBoard, loading, error, retry }}
+      value={{
+        boards,
+        currentBoard,
+        setCurrentBoard,
+        loading,
+        error,
+        offline,
+        retry,
+      }}
     >
       {children}
     </BoardContext.Provider>
