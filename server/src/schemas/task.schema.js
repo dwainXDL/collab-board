@@ -25,7 +25,7 @@ export const createTaskSchema = z.object({
 // PATCH - every field optional, but reject an empty body
 export const updateTaskSchema = z
   .object({
-    baseVersion: z.number().int().min(0),
+    baseVersion: z.number().int().min(0).optional(),
     title: z
       .string()
       .trim()
@@ -36,6 +36,9 @@ export const updateTaskSchema = z
     dueDate,
     priority: priorityEnum.optional(),
   })
-  .refine((obj) => Object.keys(obj).filter((k) => k !== "baseVersion").length > 0, {
-    message: "Provide at least one field to update",
-  });
+  .refine(
+    (obj) => Object.keys(obj).filter((k) => k !== "baseVersion").length > 0,
+    {
+      message: "Provide at least one field to update",
+    },
+  );

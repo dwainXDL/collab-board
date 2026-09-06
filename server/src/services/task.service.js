@@ -20,7 +20,17 @@ export async function updateTask(id, patch, userId) {
   await assertMember(existing.boardId, userId);
 
   const { baseVersion, ...changes } = patch;
-  const updated = await taskRepository.updateOptimistic(id, baseVersion, changes);
+
+  // No baseVersion -> plain update (backward-compatible, no concurrency check)
+  if (baseVersion === undefined) {
+    return taskRepository.update(id, changes);
+  }
+
+  const updated = await taskRepository.updateOptimistic(
+    id,
+    baseVersion,
+    changes,
+  );
 
   if (!updated) {
     const current = await taskRepository.findById(id);
