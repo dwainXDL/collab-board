@@ -17,9 +17,13 @@
 
 ## Indexes
 
-- `boards.ownerId` — boards are looked up per-owner (e.g. "show me my boards"), so this field needs an index to avoid a full collection scan.
-- `tasks.boardId` — every board view loads all of its tasks, making this the most frequent query pattern; this is the primary index on the Task collection.
-- `users.email` — used on login/signup to check for existing accounts and to authenticate; should be indexed (and unique) since it's looked up on every login.
+- `users.email` — unique index. Enforces one account per email at the database level and speeds up the login/register lookup.
+- `tasks { boardId, status, position }` — the board screen's core query: a board's tasks, filtered by status, ordered by position (equality, equality, sort).
+- `tasks { boardId, dueDate }` — due-date / overdue queries.
+- `tasks { assignee, status }` — "my tasks"-style views.
+- `tasks { title, description }` (text) — free-text search.
+
+(Boards are fetched with `Board.find()` and filtered by membership in the service layer — no dedicated board index yet; a `{ "members.userId": 1 }` index is a future optimization.)
 
 ## Concurrency Strategy
 
@@ -30,5 +34,3 @@ This was chosen over locking because task edits (dragging cards, changing status
 ## ERD
 
 ![CollabBoard ERD](erd.png)
-
-**Done when:** a reader can see the model and the reasoning without reading code.
