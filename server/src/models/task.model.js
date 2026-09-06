@@ -26,3 +26,6 @@ const taskSchema = new mongoose.Schema(
 );
 
 export const Task = mongoose.model("Task", taskSchema);
+taskSchema.index({ boardId: 1, status: 1, position: 1 });
+taskSchema.index({ boardId: 1, dueDate: 1 });
+taskSchema.index({ assigneeId: 1, status: 1 });
