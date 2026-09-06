@@ -1,32 +1,24 @@
-// In-memory store (M2 stage - swapped for Mongoose in M3).
-const tasks = [];
+import { Task } from "../models/task.model.js";
 
 export const taskRepository = {
   findByBoard(boardId) {
-    return tasks.filter((t) => t.boardId === boardId);
+    return Task.find({ boardId });
   },
 
   findById(id) {
-    return tasks.find((t) => t.id === id) ?? null;
+    return Task.findById(id);
   },
 
-  // receives a fully-formed task
-  create(task) {
-    tasks.push(task);
-    return task;
+  create(data) {
+    return Task.create(data);
   },
 
   update(id, patch) {
-    const task = tasks.find((t) => t.id === id);
-    if (!task) return null;
-    Object.assign(task, patch);
-    return task;
+    return Task.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
   },
 
-  remove(id) {
-    const index = tasks.findIndex((t) => t.id === id);
-    if (index === -1) return false;
-    tasks.splice(index, 1);
-    return true;
+  async remove(id) {
+    const result = await Task.findByIdAndDelete(id);
+    return !!result;
   },
 };

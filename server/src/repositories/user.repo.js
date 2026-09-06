@@ -1,23 +1,11 @@
-import { randomUUID } from "node:crypto";
-
-// In-memory store (M2 stage - no DB driver wired up yet).
-// email -> user record: { id, name, email, passwordHash, createdAt }
-const usersByEmail = new Map();
+import { User } from "../models/user.model.js";
 
 export const userRepository = {
-  findByEmail(email) {
-    return usersByEmail.get(email) ?? null;
+  async findByEmail(email) {
+    return User.findOne({ email });
   },
 
-  create({ email, passwordHash, name }) {
-    const user = {
-      id: randomUUID(),
-      name,
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
-    };
-    usersByEmail.set(email, user);
-    return user;
+  async create({ email, passwordHash, name }) {
+    return User.create({ name, email, passwordHash });
   },
 };
