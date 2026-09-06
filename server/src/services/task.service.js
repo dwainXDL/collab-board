@@ -8,7 +8,7 @@ export async function createTask(data, userId) {
     boardId: data.boardId,
     title: data.title,
     status: data.status,
-    assignee: data.assignee ?? null,
+    assignee: data.assignee,
     dueDate: data.dueDate ?? null,
     priority: data.priority,
   });
