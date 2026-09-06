@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import { config } from "./config.js";
 import { requestId, requestLogger } from "./middleware/requestContext.js";
 import { authenticate } from "./middleware/authenticate.js";
@@ -15,9 +16,14 @@ app.use(express.json({ limit: "100kb" })); // BEFORE any route reads req.body
 app.use(requestId);
 app.use(requestLogger);
 
-app.get("/api/health", (req, res) =>
-  res.json({ status: "OK", uptime: process.uptime() }),
-);
+app.get("/api/health", (req, res) => {
+  const states = ["disconnected", "connected", "connecting", "disconnecting"];
+  res.json({
+    status: "OK",
+    uptime: process.uptime(),
+    db: states[mongoose.connection.readyState] ?? "unknown",
+  });
+});
 
 app.use("/api/auth", authRoutes); // public
 app.use("/api/boards", authenticate, boardRoutes); // protected

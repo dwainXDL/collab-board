@@ -9,7 +9,7 @@ export function authenticate(req, res, next) {
   }
   try {
     const payload = jwt.verify(token, config.jwtSecret);
-    req.user = { id: payload.sub, email: payload.email };
+    req.user = { id: payload.sub, email: payload.email, name: payload.name };
     next();
   } catch (err) {
     const expired = err.name === "TokenExpiredError";

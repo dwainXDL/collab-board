@@ -5,7 +5,7 @@ A collaborative **Kanban-style task board**, built progressively across a 5-sess
 ## 📌 Project Status
 
 * ✅ **M1 - Frontend** (React + mock data) - complete
-* 🔜 **M2 - REST API + Auth** (Express + JWT) — in progress
+* ✅ **M2 - REST API + Auth** (Express + JWT) - complete & integrated with the frontend
 
 ## 🗂️ Repository Structure
 
@@ -32,21 +32,29 @@ CollabBoard/
 
 ## 🚀 Getting Started
 
-### Frontend
+Run the **backend** and **frontend** in two terminals. Start the backend first - the Vite dev server proxies `/api` requests to it.
 
-```bash
-cd client
-npm install
-npm run dev        # http://localhost:5173
-```
-
-### Backend *(from M2 onward)*
+### 1. Backend (Express API — port 4000)
 
 ```bash
 cd server
 npm install
-npm run dev        # http://localhost:5000
+cp .env.example .env        # then set JWT_SECRET (see server/README.md)
+npm run dev                 # http://localhost:4000
 ```
+
+### 2. Frontend (React + Vite - port 5173)
+
+```bash
+cd client
+npm install
+npm run dev                 # http://localhost:5173
+```
+
+Open **http://localhost:5173**, register an account, and you're in. The frontend proxies `/api`
+→ `http://localhost:4000`, so no CORS setup is needed in development.
+
+> Details: [`server/README.md`](server/README.md) · [`client/README.md`](client/README.md)
 
 ## 🗺️ Milestones
 
@@ -74,5 +82,5 @@ npm run dev        # http://localhost:5000
 
 ## ⚠️ Known Limitations
 
-* Frontend runs entirely on **in-memory mock data** - changes reset on refresh (the real backend arrives in M2/M3)
-* No authentication, real-time sync, offline support, tests, or deployment yet *(later milestones)*
+* Backend uses an **in-memory data store** - all data resets when the server restarts (MongoDB + Mongoose arrive in M3)
+* No real-time sync, offline support, automated tests, or deployment yet *(M4–M5)*
