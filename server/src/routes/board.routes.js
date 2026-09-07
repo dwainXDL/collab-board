@@ -13,4 +13,5 @@ router.post("/", validate(createBoardSchema), boards.create);
 
 router.get("/:id/tasks", validateObjectId, tasks.listByBoard);
 
+router.get("/:id/stats", validateObjectId, boards.stats);
 export default router;
