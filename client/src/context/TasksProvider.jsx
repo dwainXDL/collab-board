@@ -3,6 +3,10 @@ import { TasksContext } from "./TasksContext";
 import { getTasks } from "../api/tasks";
 import { useBoard } from "../hooks/useBoard";
 import { getLocalTasks, reconcileTasks } from "../db/localDB";
+import {
+  startOnlineListener,
+  setOnReplayComplete,
+} from "../db/outbox";
 
 function tasksReducer(state, action) {
   switch (action.type) {
@@ -80,6 +84,19 @@ export function TasksProvider({ children }) {
 
   useEffect(() => {
     loadTasks();
+  }, [loadTasks]);
+
+  // Wire offline queue replay on reconnect
+  useEffect(() => {
+    setOnReplayComplete((conflicts) => {
+      if (conflicts.length > 0) {
+        console.warn("Sync conflicts:", conflicts);
+      }
+      // Refresh tasks from server after replay
+      loadTasks();
+    });
+    const cleanup = startOnlineListener();
+    return cleanup;
   }, [loadTasks]);
 
   function retry() {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTask } from "../api/tasks";
-import { putTask } from "../db/localDB";
+import { putTask, enqueueWrite } from "../db/localDB";
 import { useTasks } from "../hooks/useTasks";
 import Button from "../components/Button";
 import DueDateCalendar from "../components/DueDateCalendar";
@@ -44,15 +44,28 @@ export default function NewTaskPage() {
     if (Object.keys(validationErrors).length > 0) return;
 
     setSubmitting(true);
-    const task = await createTask({
+    const payload = {
       boardId,
       title: title.trim(),
       assignee: assignee.trim() || "Unassigned",
       status: "todo",
       dueDate,
-    });
-    dispatch({ type: "added", task });
-    putTask(task);
+    };
+    try {
+      const task = await createTask(payload);
+      dispatch({ type: "added", task });
+      putTask(task);
+    } catch (err) {
+      if (!navigator.onLine || err.message === "Failed to fetch") {
+        const tempTask = { ...payload, id: `temp-${Date.now()}` };
+        dispatch({ type: "added", task: tempTask });
+        putTask(tempTask);
+        enqueueWrite({ type: "create", payload });
+      } else {
+        setSubmitting(false);
+        return;
+      }
+    }
     navigate("/");
   }
 

@@ -2,10 +2,19 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTasks } from "../hooks/useTasks";
 import { updateTaskStatus, deleteTask } from "../api/tasks";
-import { putTask, removeTask } from "../db/localDB";
+import { putTask, removeTask, enqueueWrite } from "../db/localDB";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
 import { filterTasks } from "../utils/filterTasks";
+
+function isNetworkError(err) {
+  return (
+    err.message === "Failed to fetch" ||
+    err.message === "NetworkError when attempting to fetch resource." ||
+    err.message === "Network request failed" ||
+    !navigator.onLine
+  );
+}
 
 const COLUMNS = [
   { key: "todo", label: "To Do" },
@@ -39,7 +48,14 @@ export default function Board() {
       const task = tasks.find((t) => t.id === id);
       if (task) putTask({ ...task, status });
     } catch (err) {
-      setActionError(err.message || "Failed to move task");
+      if (isNetworkError(err)) {
+        dispatch({ type: "moved", id, status });
+        const task = tasks.find((t) => t.id === id);
+        if (task) putTask({ ...task, status });
+        enqueueWrite({ type: "move", payload: { id, status } });
+      } else {
+        setActionError(err.message || "Failed to move task");
+      }
     }
   };
   const handleDelete = async (id) => {
@@ -48,7 +64,13 @@ export default function Board() {
       dispatch({ type: "deleted", id });
       removeTask(id);
     } catch (err) {
-      setActionError(err.message || "Failed to delete task");
+      if (isNetworkError(err)) {
+        dispatch({ type: "deleted", id });
+        removeTask(id);
+        enqueueWrite({ type: "delete", payload: { id } });
+      } else {
+        setActionError(err.message || "Failed to delete task");
+      }
     }
   };
 
