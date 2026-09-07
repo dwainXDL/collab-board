@@ -18,6 +18,9 @@ CollabBoard/
 └── docker-compose.yml   # Multi-service orchestration (M5)
 ```
 
+📄 See [`docs/data-model.md`](docs/data-model.md) for the full data model, embed-vs-reference justification, indexes, and ERD.
+
+
 ## 🛠️ Tech Stack
 
 | Layer          | Technology                                                    |
