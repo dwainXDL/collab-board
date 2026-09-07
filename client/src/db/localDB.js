@@ -111,6 +111,34 @@ export async function removeTask(id) {
   }
 }
 
+// --- Outbox (offline write queue) ---
+
+export async function enqueueWrite(intent) {
+  const doc = {
+    _id: `pending:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
+    data: intent,
+  };
+  await db.put(doc);
+}
+
+export async function getPendingWrites() {
+  const result = await db.allDocs({
+    startkey: "pending:",
+    endkey: "pending:\ufff0",
+    include_docs: true,
+  });
+  return result.rows.map((r) => ({ _id: r.doc._id, _rev: r.doc._rev, ...r.doc.data }));
+}
+
+export async function removePendingWrite(id) {
+  try {
+    const doc = await db.get(id);
+    await db.remove(doc);
+  } catch {
+    // already removed
+  }
+}
+
 // --- Cleanup ---
 
 export async function clearAll() {
