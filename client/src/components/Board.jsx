@@ -5,6 +5,7 @@ import { updateTaskStatus, deleteTask } from "../api/tasks";
 import { putTask, removeTask } from "../db/localDB";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
+import OverdueStats from "./OverdueStats";
 import { filterTasks } from "../utils/filterTasks";
 
 const COLUMNS = [
@@ -14,9 +15,10 @@ const COLUMNS = [
 ];
 
 export default function Board() {
-  const { tasks, dispatch, offline } = useTasks();
+  const { tasks, dispatch, offline, boardId } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionError, setActionError] = useState(null);
+  const [statsKey, setStatsKey] = useState(0);
 
   const filters = {
     status: searchParams.get("status") || "all",
@@ -38,6 +40,7 @@ export default function Board() {
       dispatch({ type: "moved", id, status });
       const task = tasks.find((t) => t.id === id);
       if (task) putTask({ ...task, status });
+      setStatsKey((k) => k + 1);
     } catch (err) {
       setActionError(err.message || "Failed to move task");
     }
@@ -47,6 +50,7 @@ export default function Board() {
       await deleteTask(id);
       dispatch({ type: "deleted", id });
       removeTask(id);
+      setStatsKey((k) => k + 1);
     } catch (err) {
       setActionError(err.message || "Failed to delete task");
     }
@@ -84,6 +88,8 @@ export default function Board() {
           </button>
         </div>
       )}
+
+      <OverdueStats boardId={boardId} refreshKey={statsKey} />
 
       <FilterBar
         filters={filters}
