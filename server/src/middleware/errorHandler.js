@@ -6,6 +6,10 @@ export function notFoundHandler(req, res, next) {
 
 // eslint-disable-next-line no-unused-vars
 export function errorHandler(err, req, res, next) {
+  // Mongoose CastError - treat it as a 404
+  if (err.name === "CastError") {
+    err = new AppError("Resource not found", 404, "NOT_FOUND");
+  }
   const status = err.status ?? 500;
   const body = {
     message: status === 500 ? "SOMETHING WENT WRONG..." : err.message,

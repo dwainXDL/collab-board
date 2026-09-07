@@ -15,7 +15,7 @@ const COLUMNS = [
 ];
 
 export default function Board() {
-  const { tasks, dispatch, retry } = useTasks();
+  const { tasks, dispatch, retry, offline } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionError, setActionError] = useState(null);
   const [conflict, setConflict] = useState(null);
@@ -39,7 +39,8 @@ export default function Board() {
       const task = tasks.find((t) => t.id === id);
       const updated = await updateTaskStatus(id, status, task?.version);
       dispatch({ type: "moved", id, status });
-      if (task) putTask({ ...task, status, version: updated?.version ?? task.version });
+      if (task)
+        putTask({ ...task, status, version: updated?.version ?? task.version });
     } catch (err) {
       if (err.status === 409 && err.details) {
         setConflict({
@@ -65,12 +66,26 @@ export default function Board() {
     const { taskId, current, yourChange } = conflict;
     setConflict(null);
     try {
-      const updated = await updateTaskStatus(taskId, yourChange.status, current.version);
+      const updated = await updateTaskStatus(
+        taskId,
+        yourChange.status,
+        current.version,
+      );
       dispatch({ type: "moved", id: taskId, status: yourChange.status });
       const task = tasks.find((t) => t.id === taskId);
-      if (task) putTask({ ...task, status: yourChange.status, version: updated?.version ?? current.version + 1 });
+      if (task)
+        putTask({
+          ...task,
+          status: yourChange.status,
+          version: updated?.version ?? current.version + 1,
+        });
     } catch (err) {
-      setActionError(err.message || "Failed to force update");
+      if (err.status === 409 && err.details) {
+        // someone changed it again between the dialog and the force — re-open with the new state
+        setConflict({ taskId, current: err.details.current, yourChange });
+      } else {
+        setActionError(err.message || "Failed to force update");
+      }
     }
   };
 
@@ -97,6 +112,12 @@ export default function Board() {
           Manage and track your team tasks efficiently.
         </p>
       </header>
+
+      {offline && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-900 bg-amber-950/50 p-3 text-sm text-amber-400">
+          <span>You are offline. Showing cached data.</span>
+        </div>
+      )}
 
       {actionError && (
         <div className="mb-4 flex items-center justify-between rounded-lg border border-red-900 bg-red-950/50 p-3 text-sm text-red-400">

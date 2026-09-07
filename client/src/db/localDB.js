@@ -26,6 +26,26 @@ export async function putBoards(boards) {
   }
 }
 
+export async function reconcileBoards(serverBoards) {
+  const serverIds = new Set(serverBoards.map((b) => b.id));
+
+  // Remove local boards not on server
+  const local = await db.allDocs({
+    startkey: "board:",
+    endkey: "board:\ufff0",
+    include_docs: true,
+  });
+  for (const row of local.rows) {
+    const localId = row.doc.data?.id;
+    if (localId && !serverIds.has(localId)) {
+      await db.remove(row.doc);
+    }
+  }
+
+  // Upsert server boards
+  await putBoards(serverBoards);
+}
+
 // --- Tasks ---
 
 export async function getLocalTasks(boardId) {
@@ -49,6 +69,26 @@ export async function putTasks(tasks) {
     }
     await db.put(doc);
   }
+}
+
+export async function reconcileTasks(boardId, serverTasks) {
+  const serverIds = new Set(serverTasks.map((t) => t.id));
+
+  // Remove local tasks for this board not on server
+  const local = await db.allDocs({
+    startkey: "task:",
+    endkey: "task:\ufff0",
+    include_docs: true,
+  });
+  for (const row of local.rows) {
+    const task = row.doc.data;
+    if (task?.boardId === boardId && !serverIds.has(task.id)) {
+      await db.remove(row.doc);
+    }
+  }
+
+  // Upsert server tasks
+  await putTasks(serverTasks);
 }
 
 export async function putTask(task) {

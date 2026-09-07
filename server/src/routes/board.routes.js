@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate.js";
+import { validateObjectId } from "../middleware/validateObjectId.js";
 import { createBoardSchema } from "../schemas/board.schema.js";
 import * as boards from "../controllers/board.controller.js";
 import * as tasks from "../controllers/task.controller.js";
@@ -10,6 +11,7 @@ router.get("/", boards.list);
 
 router.post("/", validate(createBoardSchema), boards.create);
 
-router.get("/:id/tasks", tasks.listByBoard);
+router.get("/:id/tasks", validateObjectId, tasks.listByBoard);
 
+router.get("/:id/stats", validateObjectId, boards.stats);
 export default router;

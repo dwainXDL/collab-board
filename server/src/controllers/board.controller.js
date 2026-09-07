@@ -9,3 +9,6 @@ export const create = asyncHandler(async (req, res) => {
 export const list = asyncHandler(async (req, res) => {
   res.json(await boardService.listBoardsForUser(req.user.id));
 });
+export const stats = asyncHandler(async (req, res) => {
+  res.json(await boardService.getBoardStats(req.params.id, req.user.id));
+});
