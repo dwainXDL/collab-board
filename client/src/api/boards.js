@@ -10,3 +10,7 @@ export function createBoard(data) {
     body: JSON.stringify(data),
   });
 }
+
+export function getBoardStats(boardId) {
+  return request(`/api/boards/${boardId}/stats`);
+}
