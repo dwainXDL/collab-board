@@ -23,6 +23,15 @@ export async function request(path, options = {}) {
     throw new Error(body.message || "Unauthorized");
   }
 
+  if (res.status === 409) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(body.message || "Conflict");
+    err.status = 409;
+    err.code = body.code;
+    err.details = body.details;
+    throw err;
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed: ${res.status}`);

@@ -11,10 +11,12 @@ export function createTask(data) {
   });
 }
 
-export function updateTaskStatus(id, status) {
+export function updateTaskStatus(id, status, baseVersion) {
+  const body = { status };
+  if (baseVersion !== undefined) body.baseVersion = baseVersion;
   return request(`/api/tasks/${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(body),
   });
 }
 
