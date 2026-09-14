@@ -3,7 +3,7 @@ import Button from "./Button";
 export default function ConflictDialog({ conflict, onAcceptServer, onForce }) {
   if (!conflict) return null;
 
-  const { current, yourChange } = conflict;
+  const { current, yourChange, taskTitle } = conflict;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -12,7 +12,12 @@ export default function ConflictDialog({ conflict, onAcceptServer, onForce }) {
           Conflict Detected
         </h2>
         <p className="text-sm text-slate-400 mb-4">
-          This task was updated by someone else. Choose which version to keep.
+          {taskTitle ? (
+            <>Task <span className="font-medium text-slate-200">&quot;{taskTitle}&quot;</span> was updated by someone else.</>
+          ) : (
+            "This task was updated by someone else."
+          )}{" "}
+          Choose which version to keep.
         </p>
 
         <div className="grid grid-cols-2 gap-4 mb-6">

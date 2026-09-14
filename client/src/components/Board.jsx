@@ -38,13 +38,15 @@ export default function Board() {
     try {
       const task = tasks.find((t) => t.id === id);
       const updated = await updateTaskStatus(id, status, task?.version);
-      dispatch({ type: "moved", id, status });
+      dispatch({ type: "moved", id, status, version: updated?.version });
       if (task)
         putTask({ ...task, status, version: updated?.version ?? task.version });
     } catch (err) {
       if (err.status === 409 && err.details) {
+        const taskTitle = tasks.find((t) => t.id === id)?.title;
         setConflict({
           taskId: id,
+          taskTitle,
           current: err.details.current,
           yourChange: { status },
         });
@@ -55,9 +57,6 @@ export default function Board() {
   };
 
   const handleAcceptServer = () => {
-    const { current } = conflict;
-    dispatch({ type: "moved", id: current.id, status: current.status });
-    putTask(current);
     setConflict(null);
     retry();
   };
@@ -71,7 +70,12 @@ export default function Board() {
         yourChange.status,
         current.version,
       );
-      dispatch({ type: "moved", id: taskId, status: yourChange.status });
+      dispatch({
+        type: "moved",
+        id: taskId,
+        status: yourChange.status,
+        version: updated?.version,
+      });
       const task = tasks.find((t) => t.id === taskId);
       if (task)
         putTask({
