@@ -1,6 +1,6 @@
 # 🖥️ CollabBoard Server
 
-The **Node.js + Express** backend for CollabBoard - a JWT-secured REST API for managing boards and tasks, developed as part of **M2**.
+The **Node.js + Express** backend for CollabBoard - a JWT-secured REST API for managing boards and tasks, backed by **MongoDB via Mongoose** (M2 auth/API + M3 persistence).
 
 > 📌 For the complete project overview, see the [root README](../README.md).
 
@@ -15,7 +15,7 @@ The **Node.js + Express** backend for CollabBoard - a JWT-secured REST API for m
 | **Password Hashing** | bcryptjs |
 | **Validation** | Zod |
 | **Rate Limiting** | express-rate-limit |
-| **Data Store** | In-memory *(MongoDB + Mongoose in M3)* |
+| **Data Store** | MongoDB + Mongoose ✅ |
 
 ## 🚀 Getting Started
 
@@ -45,7 +45,10 @@ Configure your .env file:
 PORT=4000
 JWT_SECRET=<a long random string>
 CLIENT_ORIGIN=http://localhost:5173
+MONGODB_URI=mongodb://localhost:27017/collabboard
 ```
+
+`MONGODB_URI` can point at a local Docker Mongo (`docker run -d --name collabboard-mongo -p 27017:27017 -v collabboarddata:/data/db mongo:8`) or a MongoDB Atlas free-tier cluster - the server just needs a reachable connection string. The DB name is **`collabboard`**.
 
 You can generate a secure JWT secret using:
 
@@ -69,11 +72,19 @@ http://localhost:4000
 
 ### ❤️ Health Check
 
-Check whether the API is running:
+Check whether the API - and its MongoDB connection - is running:
 
 ```http
 GET /api/health
 ```
+
+Response includes the live Mongoose connection state (`connected`, `connecting`, `disconnected`, `disconnecting`):
+
+```json
+{ "status": "OK", "uptime": 12.3, "db": "connected" }
+```
+
+`server.js` **awaits `connectDb()` before calling `app.listen`**, and exits with a clear error message if the database is unreachable at startup - the server never comes up silently disconnected from Mongo.
 
 ## 🏗️ Architecture
 
@@ -120,7 +131,10 @@ server/
     ├── routes/            # API endpoint wiring
     ├── controllers/       # HTTP request/response handling
     ├── services/          # Business logic & ownership checks
-    ├── repositories/      # In-memory data store
+    ├── repositories/      # Mongoose data access (Mongo-backed)
+    ├── models/            # Mongoose schemas (User, Board, Task)
+    ├── db/                # connectDb() - Mongo connection setup
+    ├── constants/         # Shared enums (status/priority/role) - used by both models & Zod
     ├── schemas/           # Zod validation schemas
     ├── middleware/        # Authentication, validation & error handling
     └── utils/              # AppError & asyncHandler
@@ -157,8 +171,9 @@ errorHandler
 | `GET` | `/api/boards` | ✓ | Get boards the user is a member of |
 | `POST` | `/api/boards` | ✓ | Create a new board |
 | `GET` | `/api/boards/:id/tasks` | ✓ | Get tasks belonging to a board |
+| `GET` | `/api/boards/:id/stats` | ✓ | Overdue task count grouped by assignee (member-guarded aggregation) |
 | `POST` | `/api/tasks` | ✓ | Create a task |
-| `PATCH` | `/api/tasks/:id` | ✓ | Update a task |
+| `PATCH` | `/api/tasks/:id` | ✓ | Update a task (optionally with `baseVersion` for optimistic concurrency) |
 | `DELETE` | `/api/tasks/:id` | ✓ | Delete a task |
 
 ## 🔎 Task Filtering & Pagination
@@ -181,7 +196,7 @@ GET /api/boards/:id/tasks?status=todo&assignee=user123&sort=-createdAt&page=1&li
 
 📖 **Full API Contract:** [docs/api-contract.md](../docs/api-contract.md)
 
-📮 **Postman Collection:** [docs/CollabBoard.postman_collection.json](../docs/CollabBoard.postman_collection.json)
+📮 **Postman Collection:** [docs/CollaBoardAPI.postman_collection.json](../docs/CollaBoardAPI.postman_collection.json)
 
 ## 🔐 Authentication & Security
 
@@ -199,9 +214,11 @@ The API uses **JWT-based authentication** to protect private endpoints.
 ```
 | Status | Meaning |
 | ------ | ------- |
+| **400** | Request validation failed |
 | **401** | Missing, invalid, or expired token |
 | **403** | Valid token, but user does not have access |
-| **400** | Request validation failed |
+| **404** | Resource does not exist, or `:id` is not a valid MongoDB ObjectId |
+| **409** | Duplicate email on register, or a stale `baseVersion` on task update (`VERSION_CONFLICT`) |
 ```
 
 Validation errors return a `details` array containing the affected field and message:
@@ -226,18 +243,34 @@ API errors follow a consistent structure:
 }
 ```
 
-## 💾 Data Storage
+## 💾 Database (M3)
 
-The M2 backend currently uses an **in-memory data store**.
+The backend is now backed by **MongoDB via Mongoose** - data survives a server restart. The in-memory arrays from M2 are gone; the repository layer kept its function signatures, so nothing
+above it (services/controllers) had to change shape, though calls did become `async`/`await`.
 
-> ⚠️ Note: All users, boards, and tasks are reset when the server restarts.
+- **users** `{ name, email (unique), passwordHash, timestamps }` - `passwordHash` is stripped from every response via a shared `toJSON` transform.
+- **boards** `{ name, ownerId, members: [{ userId, role }], timestamps }` - members are **embedded** (small, bounded, always read with the board).
+- **tasks** `{ boardId (ref), title, description, status, assignee, dueDate, priority, position, columnId, version, timestamps }` - tasks are **referenced**, not embedded, since a board can 
+accumulate hundreds of them.
 
-The repository layer is designed so the in-memory implementation can be replaced with MongoDB + Mongoose in M3 without changing the API structure.
+Registering a new user automatically seeds a default **"My Board"** so the app isn't empty on first login.
+
+### Indexes
+
+`users.email` (unique - duplicate registration returns `409`); `tasks { boardId, status, position }`; `tasks { boardId, dueDate }`; `tasks { assignee, status }`; and a text index on `tasks { title, description }` for search.
+
+### Optimistic Concurrency
+
+Every task has a `version` integer, distinct from Mongoose's own `__v`. A `PATCH` can include `baseVersion`; if it no longer matches the stored version (someone else updated the task first),
+the request fails with `409 VERSION_CONFLICT` and returns the current server state instead of silently overwriting it. `baseVersion` is optional - omitting it does a plain update with no
+concurrency check, so older callers keep working.
+
+📖 **Full data model + embed/reference rationale + ERD:** [docs/data-model.md](../docs/data-model.md)
 
 ## 📚 Related Documentation
 
 - 🏠 [Root README](../README.md)
 - 📖 [API Contract](../docs/api-contract.md)
-- 📮 [Postman Collection](../docs/CollabBoard.postman_collection.json)
+- 📮 [Postman Collection](../docs/CollaBoardAPI.postman_collection.json)
 
 ---
