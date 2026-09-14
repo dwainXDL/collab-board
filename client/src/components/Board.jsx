@@ -12,6 +12,7 @@ function isNetworkError(err) {
     err.message === "Failed to fetch" ||
     err.message === "NetworkError when attempting to fetch resource." ||
     err.message === "Network request failed" ||
+    err.message === "Load failed" ||
     !navigator.onLine
   );
 }
@@ -23,7 +24,7 @@ const COLUMNS = [
 ];
 
 export default function Board() {
-  const { tasks, dispatch, offline } = useTasks();
+  const { tasks, dispatch, offline, replayConflicts, setReplayConflicts } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionError, setActionError] = useState(null);
 
@@ -49,10 +50,10 @@ export default function Board() {
       if (task) putTask({ ...task, status });
     } catch (err) {
       if (isNetworkError(err)) {
-        dispatch({ type: "moved", id, status });
         const task = tasks.find((t) => t.id === id);
+        dispatch({ type: "moved", id, status });
         if (task) putTask({ ...task, status });
-        enqueueWrite({ type: "move", payload: { id, status } });
+        enqueueWrite({ type: "move", payload: { id, status, version: task?.version } });
       } else {
         setActionError(err.message || "Failed to move task");
       }
@@ -87,6 +88,28 @@ export default function Board() {
           Manage and track your team tasks efficiently.
         </p>
       </header>
+
+      {replayConflicts?.length > 0 && (
+        <div className="mb-4 rounded-lg border border-orange-900 bg-orange-950/50 p-3 text-sm text-orange-400">
+          <p className="font-medium mb-1">
+            {replayConflicts.length} sync conflict(s) detected during replay
+          </p>
+          <ul className="list-disc list-inside text-xs space-y-1">
+            {replayConflicts.map((c, i) => (
+              <li key={i}>
+                {c.entry.type} on task {c.entry.payload.id}
+                {c.details?.current ? ` — server status: ${c.details.current.status}` : ""}
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => setReplayConflicts([])}
+            className="mt-2 text-xs text-orange-300 underline hover:text-orange-200"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {offline && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-900 bg-amber-950/50 p-3 text-sm text-amber-400">

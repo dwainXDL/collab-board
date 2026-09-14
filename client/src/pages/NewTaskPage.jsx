@@ -56,12 +56,18 @@ export default function NewTaskPage() {
       dispatch({ type: "added", task });
       putTask(task);
     } catch (err) {
-      if (!navigator.onLine || err.message === "Failed to fetch") {
-        const tempTask = { ...payload, id: `temp-${Date.now()}` };
+      if (
+        !navigator.onLine ||
+        err.message === "Failed to fetch" ||
+        err.message === "Load failed"
+      ) {
+        const tempId = `temp-${Date.now()}`;
+        const tempTask = { ...payload, id: tempId };
         dispatch({ type: "added", task: tempTask });
         putTask(tempTask);
-        enqueueWrite({ type: "create", payload });
+        enqueueWrite({ type: "create", payload: { ...payload, tempId } });
       } else {
+        setErrors({ submit: err.message || "Failed to create task" });
         setSubmitting(false);
         return;
       }
@@ -140,6 +146,12 @@ export default function NewTaskPage() {
               </p>
             )}
           </div>
+
+          {errors.submit && (
+            <p role="alert" className="text-red-400 text-sm">
+              {errors.submit}
+            </p>
+          )}
 
           {/* Submit Button */}
           <div className="mt-4 pt-4 border-t border-slate-800/50 flex justify-end">

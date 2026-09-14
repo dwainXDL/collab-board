@@ -31,6 +31,7 @@ export function TasksProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [offline, setOffline] = useState(false);
+  const [replayConflicts, setReplayConflicts] = useState([]);
   const serverLoaded = useRef(false);
 
   const boardId = currentBoard?.id;
@@ -90,9 +91,8 @@ export function TasksProvider({ children }) {
   useEffect(() => {
     setOnReplayComplete((conflicts) => {
       if (conflicts.length > 0) {
-        console.warn("Sync conflicts:", conflicts);
+        setReplayConflicts(conflicts);
       }
-      // Refresh tasks from server after replay
       loadTasks();
     });
     const cleanup = startOnlineListener();
@@ -105,7 +105,7 @@ export function TasksProvider({ children }) {
 
   return (
     <TasksContext.Provider
-      value={{ tasks, dispatch, loading, error, offline, retry, boardId }}
+      value={{ tasks, dispatch, loading, error, offline, retry, boardId, replayConflicts, setReplayConflicts }}
     >
       {children}
     </TasksContext.Provider>

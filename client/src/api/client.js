@@ -20,12 +20,20 @@ export async function request(path, options = {}) {
     localStorage.removeItem("token");
     window.dispatchEvent(new Event("auth:expired"));
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || "Unauthorized");
+    const err = new Error(body.message || "Unauthorized");
+    err.status = 401;
+    throw err;
   }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `Request failed: ${res.status}`);
+    const err = new Error(body.message || `Request failed: ${res.status}`);
+    err.status = res.status;
+    if (res.status === 409) {
+      err.code = body.code;
+      err.details = body.details;
+    }
+    throw err;
   }
 
   return res.json();
