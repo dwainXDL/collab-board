@@ -62,7 +62,7 @@ export default function Board() {
   };
 
   const handleForce = async () => {
-    const { taskId, current, yourChange } = conflict;
+    const { taskId, taskTitle, current, yourChange } = conflict;
     setConflict(null);
     try {
       const updated = await updateTaskStatus(
@@ -86,7 +86,7 @@ export default function Board() {
     } catch (err) {
       if (err.status === 409 && err.details) {
         // someone changed it again between the dialog and the force — re-open with the new state
-        setConflict({ taskId, current: err.details.current, yourChange });
+        setConflict({ taskId, taskTitle, current: err.details.current, yourChange });
       } else {
         setActionError(err.message || "Failed to force update");
       }
