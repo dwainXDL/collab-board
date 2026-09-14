@@ -89,7 +89,7 @@ export default function Board() {
         </div>
       )}
 
-      <OverdueStats boardId={boardId} refreshKey={statsKey} />
+      <OverdueStats boardId={boardId} refreshKey={statsKey + tasks.length} />
 
       <FilterBar
         filters={filters}

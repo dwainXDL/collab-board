@@ -7,20 +7,31 @@ export default function OverdueStats({ boardId, refreshKey }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!boardId) return;
+    if (!boardId) {
+      setLoading(false);
+      setStats([]);
+      return;
+    }
 
+    let cancelled = false;
     setLoading(true);
     setError(null);
 
     getBoardStats(boardId)
       .then((data) => {
+        if (cancelled) return;
         const sorted = [...data].sort((a, b) => b.overdueCount - a.overdueCount);
         setStats(sorted);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(err.message || "Failed to load stats");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [boardId, refreshKey]);
 
   return (
