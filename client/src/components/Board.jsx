@@ -5,6 +5,7 @@ import { updateTaskStatus, deleteTask } from "../api/tasks";
 import { putTask, removeTask } from "../db/localDB";
 import Column from "./Column";
 import FilterBar from "./FilterBar";
+import ConflictDialog from "./ConflictDialog";
 import { filterTasks } from "../utils/filterTasks";
 
 const COLUMNS = [
@@ -14,9 +15,10 @@ const COLUMNS = [
 ];
 
 export default function Board() {
-  const { tasks, dispatch, offline } = useTasks();
+  const { tasks, dispatch, retry, offline } = useTasks();
   const [searchParams, setSearchParams] = useSearchParams();
   const [actionError, setActionError] = useState(null);
+  const [conflict, setConflict] = useState(null);
 
   const filters = {
     status: searchParams.get("status") || "all",
@@ -34,14 +36,63 @@ export default function Board() {
 
   const handleMove = async (id, status) => {
     try {
-      await updateTaskStatus(id, status);
-      dispatch({ type: "moved", id, status });
       const task = tasks.find((t) => t.id === id);
-      if (task) putTask({ ...task, status });
+      const updated = await updateTaskStatus(id, status, task?.version);
+      dispatch({ type: "moved", id, status, version: updated?.version });
+      if (task)
+        putTask({ ...task, status, version: updated?.version ?? task.version });
     } catch (err) {
-      setActionError(err.message || "Failed to move task");
+      if (err.status === 409 && err.details) {
+        const taskTitle = tasks.find((t) => t.id === id)?.title;
+        setConflict({
+          taskId: id,
+          taskTitle,
+          current: err.details.current,
+          yourChange: { status },
+        });
+      } else {
+        setActionError(err.message || "Failed to move task");
+      }
     }
   };
+
+  const handleAcceptServer = () => {
+    setConflict(null);
+    retry();
+  };
+
+  const handleForce = async () => {
+    const { taskId, taskTitle, current, yourChange } = conflict;
+    setConflict(null);
+    try {
+      const updated = await updateTaskStatus(
+        taskId,
+        yourChange.status,
+        current.version,
+      );
+      dispatch({
+        type: "moved",
+        id: taskId,
+        status: yourChange.status,
+        version: updated?.version,
+      });
+      const task = tasks.find((t) => t.id === taskId);
+      if (task)
+        putTask({
+          ...task,
+          status: yourChange.status,
+          version: updated?.version ?? current.version + 1,
+        });
+    } catch (err) {
+      if (err.status === 409 && err.details) {
+        // someone changed it again between the dialog and the force — re-open with the new state
+        setConflict({ taskId, taskTitle, current: err.details.current, yourChange });
+      } else {
+        setActionError(err.message || "Failed to force update");
+      }
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
@@ -108,6 +159,12 @@ export default function Board() {
           ))}
         </div>
       )}
+
+      <ConflictDialog
+        conflict={conflict}
+        onAcceptServer={handleAcceptServer}
+        onForce={handleForce}
+      />
     </div>
   );
 }

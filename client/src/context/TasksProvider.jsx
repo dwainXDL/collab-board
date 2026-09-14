@@ -12,7 +12,9 @@ function tasksReducer(state, action) {
       return [...state, action.task];
     case "moved":
       return state.map((t) =>
-        t.id === action.id ? { ...t, status: action.status } : t,
+        t.id === action.id
+          ? { ...t, status: action.status, version: action.version ?? t.version }
+          : t,
       );
     case "deleted":
       return state.filter((t) => t.id !== action.id);
